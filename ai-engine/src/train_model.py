@@ -1,6 +1,8 @@
 import joblib
 import numpy as np
 import pandas as pd
+import mlflow
+import mlflow.sklearn
 
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
@@ -73,7 +75,25 @@ def main():
     print(f"R²   : {r2:.4f}")
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
-
+    
+    mlflow.set_tracking_uri("http://localhost:5555")
+    mlflow.set_experiment("SmartHouse-AVM")
+    
+    with mlflow.start_run(run_name="linear_regression_baseline"):
+        mlflow.log_param("model_type", "linear_regression_baseline")
+        mlflow.log_param("target_transform", "log1p")
+        mlflow.log_param("test_size", TEST_SIZE)
+        mlflow.log_param("random_state", RANDOM_STATE)
+        
+        mlflow.log_metric("mae", mae)
+        mlflow.log_metric("rmse", rmse)
+        mlflow.log_metric("r2", r2)
+        
+        mlflow.sklearn.log_model(
+            sk_model=model_pipeline,
+            artifact_path="model"
+        )
+    
     joblib.dump(model_pipeline, MODEL_PATH)
 
     print(f"Modelo guardado en: {MODEL_PATH}")
