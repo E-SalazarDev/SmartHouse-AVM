@@ -1,0 +1,20 @@
+experiment:
+  name: SmartHouse-AVM
+  run_name: linear_regression_baseline
+  tracking_uri: http://localhost:5555
+
+model:
+  name: linear_regression_model
+  type: LinearRegression
+  target: SalePrice
+  target_transform: log1p
+
+data:
+  processed_path: data/processed/train_clean.csv
+
+training:
+  test_size: 0.2
+  random_state: 42
+
+artifacts:
+  model_path: artifacts/linear_regression_model.pkl
