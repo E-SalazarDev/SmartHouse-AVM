@@ -4,7 +4,7 @@ class PredictionRequest(models.Model):
     
     created_at = models.DateTimeField(auto_now=True)
     
-    input_dadta = models.JSONField()
+    input_data = models.JSONField()
     
     predicted_price = models.DecimalField(max_digits=12, decimal_places=2)
     
