@@ -4,7 +4,7 @@ from rest_framework import status
 
 from .models import PredictionRequest
 from .ml_model import predict_house_price
-
+from .serializers import PredictionRequestSerializer
 
 class HousePricePredictionView(APIView):
 
@@ -40,3 +40,19 @@ class HousePricePredictionView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+            
+            
+class PredictionHistoryView(APIView):
+    def get(self, request):
+        
+        predictions = PredictionRequest.objects.all().order_by("-created_at")
+        
+        serializers = PredictionRequestSerializer(
+            predictions,
+            many=True
+        )
+        
+        return Response(
+            serializers.data,
+            status= status.HTTP_200_OK
+        )
