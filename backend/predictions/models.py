@@ -1,40 +1,24 @@
-from pathlib import Path
+from django.db import models
 
-import joblib
-import numpy as np
-import pandas as pd
-
-
-BASE_DIR = Path(__file__).resolve().parents[2]
-
-MODEL_PATH = (
-    BASE_DIR
-    / "ai-engine"
-    / "artifacts"
-    / "linear_regression_model.pkl"
-)
-
-
-_model = None
-
-
-def load_model():
-    global _model
-
-    if _model is None:
-        _model = joblib.load(MODEL_PATH)
-
-    return _model
-
-
-def predict_house_price(data: dict) -> float:
-    model = load_model()
-
-    input_df = pd.DataFrame([data])
-
-    prediction_log = model.predict(input_df)
-
-    prediction_price = np.expm1(prediction_log)[0]
-
-    return float(prediction_price)
-
+class PredictionRequest(models.Model):
+    
+    created_at = models.DateTimeField(auto_now=True)
+    
+    input_dadta = models.JSONField()
+    
+    predicted_price = models.DecimalField(max_digits=12, decimal_places=2)
+    
+    model_name = models.CharField(max_length=100, default="linear_regression_model") 
+    
+    model_version = models.CharField(max_length=100, default= "local-pkl")
+    
+    # metrics
+    
+    mae = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank= True)
+    
+    rmse = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
+    r2 = models.FloatField( null=True, blank=True)
+    
+    def __str__(self):
+        return f"Prediction {self.id} - ${self.predicted_price}"
