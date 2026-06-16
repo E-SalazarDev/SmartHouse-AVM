@@ -18,9 +18,9 @@ export default function Nav(second) {
     return (
         <div className="hidden md:flex items-center justify-center gap-2 lg:gap-4 flex-1 px-2">
             {navItems.map(({ icon: Icon, label, uri }, i) => (
-                <Link to={uri}>
+                <Link  key={i} to={uri}>
                  <button
-                    key={i}
+                   
                     onClick={() => setActive(i)}
                     className={`py-2 px-3 lg:px-4 rounded-full font-bold transition-all flex items-center gap-2 ${active === i
                             ? "bg-fuchsia-500 text-white"
