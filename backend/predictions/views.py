@@ -4,7 +4,7 @@ from rest_framework import status
 
 from .models import PredictionRequest
 from .ml_model import predict_house_price
-from .serializers import PredictionRequestSerializer
+from .serializers import (PredictionHistorySerializer, PredictionDetailSerializer)
 
 class HousePricePredictionView(APIView):
 
@@ -40,19 +40,72 @@ class HousePricePredictionView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-            
+
+
 class PredictionHistoryView(APIView):
+
     def get(self, request):
-        
-        predictions = PredictionRequest.objects.all().order_by("-created_at")
-        
-        serializers = PredictionRequestSerializer(
+
+        predictions = PredictionRequest.objects.all()
+
+        min_price = request.query_params.get("min_price")
+        max_price = request.query_params.get("max_price")
+        model_name = request.query_params.get("model_name")
+
+        if min_price:
+            predictions = predictions.filter(
+                # Mayor o igual.
+                predicted_price__gte=min_price
+            )
+
+        if max_price:
+            predictions = predictions.filter(
+                # Menor o igual.
+                predicted_price__lte=max_price
+            )
+
+        if model_name:
+            predictions = predictions.filter(
+                model_name=model_name
+            )
+
+        predictions = predictions.order_by(
+            "-created_at"
+        )
+
+        serializer = PredictionHistorySerializer(
             predictions,
             many=True
         )
-        
+
         return Response(
-            serializers.data,
-            status= status.HTTP_200_OK
+            serializer.data,
+            status=status.HTTP_200_OK
         )
+
+
+class PredictionDetailView(APIView):
+
+    def get(self, request, prediction_id):
+
+        try:
+            prediction = PredictionRequest.objects.get(
+                id=prediction_id
+            )
+
+            serializer = PredictionDetailSerializer(
+                prediction
+            )
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        except PredictionRequest.DoesNotExist:
+            return Response(
+                {
+                    "error": "Prediction not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
