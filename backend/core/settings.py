@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'predictions',
+    'properties',
     
     'django.contrib.admin',
     'django.contrib.auth',
