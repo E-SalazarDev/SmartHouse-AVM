@@ -1,4 +1,5 @@
 from django.db import models
+from  properties.models import Property
 
 class PredictionRequest(models.Model):
     
@@ -19,6 +20,14 @@ class PredictionRequest(models.Model):
     rmse = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     
     r2 = models.FloatField( null=True, blank=True)
+    
+    property = models.ForeignKey(
+    Property,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="predictions"
+)
     
     def __str__(self):
         return f"Prediction {self.id} - ${self.predicted_price}"
