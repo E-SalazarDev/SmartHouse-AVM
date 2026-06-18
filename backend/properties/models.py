@@ -137,6 +137,11 @@ class Property(models.Model):
     # CONTROL DEL SISTEMA
     # --------------------------------------------------
 
+    model_input_data = models.JSONField(
+    null=True,
+    blank=True
+)
+    
     # Indica si la propiedad se muestra en el catálogo
     is_active = models.BooleanField(default=True)
 
@@ -145,6 +150,7 @@ class Property(models.Model):
 
     # Fecha de última actualización
     updated_at = models.DateTimeField(auto_now=True)
+    
 
     def __str__(self):
         return self.title
