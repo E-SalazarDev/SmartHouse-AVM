@@ -23,12 +23,12 @@ class PropertyListSerializer(serializers.ModelSerializer):
     
 class PropertyDetailSerializer(serializers.ModelSerializer):
             
-    created_at = serializers.DateTimeField(format="%d/%m/%Y")
+    created_at  = serializers.DateTimeField(format="%d/%m/%Y")
         
-    update_at = serializers.DateTimeField(format="%d/%m/%Y")
+    updated_at  = serializers.DateTimeField(format="%d/%m/%Y")
         
     class Meta:
-        model: Property
+        model = Property
         fields ="__all__"
 
         
