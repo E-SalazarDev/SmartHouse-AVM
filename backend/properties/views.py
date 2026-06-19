@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from predictions.models import PredictionRequest
 from predictions.ml_model import predict_house_price
+from django.db.models import Avg
 
 from .models import Property
 from .serializers import (
@@ -133,4 +134,33 @@ class PropertyPredictionsHistoryView(APIView):
                     "error": "Property not found"
                 },
                 status=status.HTTP_404_NOT_FOUND
-            )        
+            )
+            
+class PropertyStatsView(APIView):
+
+    def get(self, request):
+
+        total_properties = Property.objects.count()
+
+        active_properties = Property.objects.filter(
+            is_active=True
+        ).count()
+
+        total_predictions = PredictionRequest.objects.count()
+
+        average_predicted_price = PredictionRequest.objects.aggregate(
+            average_price=Avg("predicted_price")
+        )["average_price"]
+
+        return Response(
+            {
+                "total_properties": total_properties,
+                "active_properties": active_properties,
+                "total_predictions": total_predictions,
+                "average_predicted_price": round(
+                    average_predicted_price or 0,
+                    2
+                )
+            },
+            status=status.HTTP_200_OK
+        )

@@ -5,7 +5,6 @@ class PropertyListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Property
-
         fields = (
             "id",
             "title",
@@ -30,6 +29,4 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields ="__all__"
-
-        
         
