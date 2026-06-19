@@ -31,7 +31,24 @@ class PropertyListView(APIView):
             status=status.HTTP_200_OK
         )
 
+    def post(self, request):
 
+        serializer = PropertyDetailSerializer(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            property_obj = serializer.save()
+
+            return Response(
+                PropertyDetailSerializer(property_obj).data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 class PropertyDetailView(APIView):
 
     def get(self, request, property_id):
