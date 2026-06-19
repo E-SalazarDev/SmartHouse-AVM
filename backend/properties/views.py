@@ -9,6 +9,7 @@ from .serializers import (
     PropertyListSerializer,
     PropertyDetailSerializer,
 )
+from predictions.serializers import PredictionHistorySerializer
 
 
 class PropertyListView(APIView):
@@ -101,3 +102,35 @@ class PropertyPredictionView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+class PropertyPredictionsHistoryView(APIView):
+
+    def get(self, request, property_id):
+
+        try:
+            property_obj = Property.objects.get(
+                id=property_id,
+                is_active=True
+            )
+
+            predictions = property_obj.predictions.all().order_by(
+                "-created_at"
+            )
+
+            serializer = PredictionHistorySerializer(
+                predictions,
+                many=True
+            )
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        except Property.DoesNotExist:
+            return Response(
+                {
+                    "error": "Property not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )        
