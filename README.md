@@ -108,4 +108,3 @@ El backend expone APIs REST para:
 
 El modelo actual fue entrenado con el dataset Ames Housing. Por lo tanto, las predicciones representan estimaciones basadas en ese conjunto de datos y no deben interpretarse como valuaciones oficiales del mercado inmobiliario mexicano.
 
-Este proyecto tiene fines educativos, técnicos y de portafolio profesional.
