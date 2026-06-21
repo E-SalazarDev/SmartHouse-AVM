@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: 'Inter Tight', 'Inter', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-ink: #0A0A0F;
+  --color-ink-soft: #5A5A66;
+  --color-ink-faint: #9A9AA6;
+  --color-brand-blue: #4F6BFF;
+  --color-brand-purple: #8B7FF0;
+  --color-brand-cyan: #4DD8E0;
+}
