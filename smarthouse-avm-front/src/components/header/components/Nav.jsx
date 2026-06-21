@@ -24,7 +24,7 @@ export default function Nav(second) {
                     onClick={() => setActive(i)}
                     className={`py-2 px-3 lg:px-4 rounded-full font-bold transition-all flex items-center gap-2 ${active === i
                             ? "bg-fuchsia-500 text-white"
-                            : "bg-blue-500 hover:bg-fuchsia-500 text-white"
+                            : "bg-[#7462F9] hover:bg-fuchsia-500 text-white"
                         }`}
                     title={label}
                 >
