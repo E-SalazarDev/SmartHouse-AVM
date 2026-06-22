@@ -1,12 +1,7 @@
-import {
-    Building2,
-    Clock3,
-    Compass,
-    Home as HomeIcon,
-    MapPin,
-} from "lucide-react";
+import { Building2 } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import PageTitle from "../../../components/ui/PageTitle";
+import { homeFilters } from "../constants/homeFilters";
 
 export default function HomeExploreHeader() {
     return (
@@ -42,10 +37,13 @@ export default function HomeExploreHeader() {
                         Todas
                     </button>
 
-                    <FilterButton icon={HomeIcon} label="Construcción" />
-                    <FilterButton icon={Compass} label="Mayor ROI" />
-                    <FilterButton icon={Clock3} label="Recientes" />
-                    <FilterButton icon={MapPin} label="Mejor zona" />
+                    {homeFilters.map((filter) => (
+                        <FilterButton
+                            key={filter.label}
+                            icon={filter.icon}
+                            label={filter.label}
+                        />
+                    ))}
                 </div>
             </div>
         </Card>

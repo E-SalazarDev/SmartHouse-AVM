@@ -1,6 +1,6 @@
 import Grid from "../../components/ui/Grid";
-import AiValuationCard from "../../components/ui/AiValuationCard";
 
+import AiValuationCard from "./components/AiValuationCard";
 import HomeHero from "./components/HomeHero";
 import HomeWorkspace from "./components/HomeWorkspace";
 import HomeModelSummary from "./components/HomeModelSummary";
