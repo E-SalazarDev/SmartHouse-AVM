@@ -10,9 +10,7 @@ import {
 
 const ROTATE_EVERY_MS = 9000;
 
-// Elige 6 factores al azar (para el círculo) de un set de 8, y devuelve también
-// los 2 restantes (para el grid de abajo). Mezcla con Fisher-Yates para que la
-// selección sea uniforme.
+
 function pickRandomSplit(all, countInCircle) {
     const shuffled = [...all];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -25,8 +23,7 @@ function pickRandomSplit(all, countInCircle) {
     };
 }
 
-// Para cada rotación elige también, por posición, una variante de curva al azar
-// entre las 3 disponibles, así el tentáculo "se mueve" distinto cada vez.
+
 function pickPathVariants(positions) {
     const out = {};
     positions.forEach((pos) => {
@@ -36,11 +33,11 @@ function pickPathVariants(positions) {
     return out;
 }
 
-function TentacleChip({ item, position, pathVariant }) {
+
+function TentacleChip({ item, position }) {
     const Icon = item.icon;
-    const isLeft = position.startsWith("left");
-    const isRight = position.startsWith("right");
-    const reverse = isRight;
+    const reverse = position.startsWith("right");
+    const isVertical = position === "top" || position === "bottom";
 
     return (
         <motion.div
@@ -50,14 +47,16 @@ function TentacleChip({ item, position, pathVariant }) {
             exit={{ opacity: 0, scale: 0.6, filter: "blur(6px)" }}
             transition={{ duration: 0.6, type: "spring", stiffness: 110, damping: 16 }}
             whileHover={{ scale: 1.05 }}
-            className={`${tentacleChipClass[position]} z-30 flex items-center gap-1.5 rounded-2xl border border-slate-200/80 bg-white/95 px-2 py-1.5 shadow-[0_16px_38px_-24px_rgba(15,23,42,0.55)] backdrop-blur max-w-[88px] ${
+            className={`${tentacleChipClass[position] ?? "relative"} ${
+                isVertical ? "w-max" : "w-full"
+            } z-30 flex items-center gap-2.5 rounded-2xl border border-slate-200/80 bg-white/95 px-3 py-2.5 shadow-[0_16px_38px_-24px_rgba(15,23,42,0.55)] backdrop-blur ${
                 reverse ? "flex-row-reverse" : ""
             }`}
         >
-            <div className="h-6 w-6 shrink-0 rounded-lg bg-slate-100 flex items-center justify-center">
-                <Icon className="w-3 h-3 text-indigo-600" />
+            <div className="h-8 w-8 shrink-0 rounded-lg bg-slate-100 flex items-center justify-center">
+                <Icon className="w-4 h-4 text-indigo-600" />
             </div>
-            <span className="text-[10px] font-semibold text-slate-700 truncate">
+            <span className="text-[13px] font-semibold text-slate-700 whitespace-nowrap">
                 {item.label}
             </span>
         </motion.div>
@@ -100,7 +99,6 @@ export default function AiValuationCard() {
         return () => clearInterval(intervalRef.current);
     }, []);
 
-    // Asigna cada factor elegido a una posición fija (top, bottom, left_high...)
     const assigned = useMemo(() => {
         const map = {};
         tentaclePositions.forEach((pos, i) => {
@@ -138,115 +136,140 @@ export default function AiValuationCard() {
                     </span>
                 </div>
 
-                {/* Núcleo con tentáculos curvos */}
-                <div className="relative mx-auto h-[460px] w-[164px]">
-                    <svg
-                        className="absolute z-0 h-full w-full"
-                        viewBox="0 0 164 460"
-                        preserveAspectRatio="none"
-                        fill="none"
-                    >
-                        <defs>
-                            <linearGradient id="neuralLine" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.15" />
-                                <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.65" />
-                                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.15" />
-                            </linearGradient>
-                        </defs>
-
-                        <AnimatePresence mode="popLayout">
-                            {tentaclePositions.map((pos, index) => (
-                                <motion.path
-                                    key={`${pos}-${pathVariants[pos]}`}
-                                    d={pathVariants[pos]}
-                                    stroke="url(#neuralLine)"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    fill="none"
-                                    initial={{ pathLength: 0, opacity: 0 }}
-                                    animate={{ pathLength: 1, opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{
-                                        delay: 0.1 + index * 0.12,
-                                        duration: 1.2,
-                                        ease: "easeInOut",
-                                    }}
-                                />
-                            ))}
-                        </AnimatePresence>
-
-                        {tentaclePositions.map((pos, index) => (
-                            <motion.circle
-                                key={`${pos}-pulse-${pathVariants[pos]}`}
-                                r="4"
-                                fill="#8b5cf6"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: [0, 1, 0] }}
-                                transition={{
-                                    delay: 1 + index * 0.3,
-                                    duration: 1.8,
-                                    repeat: Infinity,
-                                    repeatDelay: 2.4,
-                                }}
-                            >
-                                <animateMotion
-                                    dur="3.2s"
-                                    repeatCount="indefinite"
-                                    path={pathVariants[pos]}
-                                />
-                            </motion.circle>
-                        ))}
-                    </svg>
-
-                    {/* Centro: aro punteado + halo + bola morada, anclados al medio del núcleo */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
-                        <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-                            className="absolute h-24 w-24 rounded-full border border-dashed border-indigo-300/70"
-                        />
-
-                        <motion.div
-                            animate={{
-                                rotate: 360,
-                                background: [
-                                    "conic-gradient(from 0deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
-                                    "conic-gradient(from 180deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
-                                    "conic-gradient(from 360deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
-                                ],
-                            }}
-                            transition={{
-                                rotate: { repeat: Infinity, duration: 5.5, ease: "linear" },
-                                background: { repeat: Infinity, duration: 5.5, ease: "linear" },
-                            }}
-                            className="absolute h-28 w-28 rounded-full opacity-60 blur-[1px]"
-                        />
-
-                        <div className="absolute h-20 w-20 rounded-full bg-white" />
-
-                        <motion.div
-                            animate={{ y: [0, -6, 0], rotate: [-1.2, 1.2, -1.2] }}
-                            transition={{ repeat: Infinity, duration: 4.6, ease: "easeInOut" }}
-                            className="relative z-20 h-14 w-14 rounded-full bg-linear-to-br from-indigo-500 via-violet-500 to-purple-500 flex items-center justify-center shadow-[0_24px_50px_-16px_rgba(99,102,241,0.75)]"
-                        >
-                            <Home className="w-7 h-7 text-white" />
-                        </motion.div>
+     
+                <div
+                    className="grid grid-cols-[minmax(156px,1fr)_auto_minmax(156px,1fr)] items-center gap-2"
+                    style={{ containerType: "inline-size" }}
+                >
+                    {/* Columna izquierda */}
+                    <div className="flex flex-col gap-4">
+                        <TentacleChip item={assigned.left_high} position="left_high" />
+                        <TentacleChip item={assigned.left_low} position="left_low" />
                     </div>
 
-                    {/* Los 6 chips flotantes en sus posiciones fijas, contenido rotando */}
-                    <AnimatePresence mode="wait">
-                        {tentaclePositions.map((pos) => (
-                            <TentacleChip
-                                key={`${pos}-${assigned[pos]?.key}`}
-                                item={assigned[pos]}
-                                position={pos}
-                                pathVariant={pathVariants[pos]}
+                    {/* Núcleo: SVG de tentáculos + halo  */}
+                    <div
+                        className="relative mx-auto"
+                        style={{
+                            width: "clamp(130px, 30cqw, 220px)",
+                            aspectRatio: "164 / 460",
+                        }}
+                    >
+                        <svg
+                            className="absolute inset-0 z-0 h-full w-full"
+                            viewBox="0 0 164 460"
+                            preserveAspectRatio="xMidYMid meet"
+                            fill="none"
+                        >
+                            <defs>
+                                <linearGradient id="neuralLine" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.15" />
+                                    <stop offset="55%" stopColor="#8b5cf6" stopOpacity="0.65" />
+                                    <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.15" />
+                                </linearGradient>
+                            </defs>
+
+                            <AnimatePresence mode="popLayout">
+                                {tentaclePositions.map((pos, index) => (
+                                    <motion.path
+                                        key={`${pos}-${pathVariants[pos]}`}
+                                        d={pathVariants[pos]}
+                                        stroke="url(#neuralLine)"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        fill="none"
+                                        initial={{ pathLength: 0, opacity: 0 }}
+                                        animate={{ pathLength: 1, opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{
+                                            delay: 0.1 + index * 0.12,
+                                            duration: 1.2,
+                                            ease: "easeInOut",
+                                        }}
+                                    />
+                                ))}
+                            </AnimatePresence>
+
+                            {tentaclePositions.map((pos, index) => (
+                                <motion.circle
+                                    key={`${pos}-pulse-${pathVariants[pos]}`}
+                                    r="4"
+                                    fill="#8b5cf6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: [0, 1, 0] }}
+                                    transition={{
+                                        delay: 1 + index * 0.3,
+                                        duration: 1.8,
+                                        repeat: Infinity,
+                                        repeatDelay: 2.4,
+                                    }}
+                                >
+                                    <animateMotion
+                                        dur="3.2s"
+                                        repeatCount="indefinite"
+                                        path={pathVariants[pos]}
+                                    />
+                                </motion.circle>
+                            ))}
+                        </svg>
+
+                        {/* Centro: halo + bola morada */}
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
+                            <motion.div
+                                animate={{
+                                    rotate: 360,
+                                    background: [
+                                        "conic-gradient(from 0deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
+                                        "conic-gradient(from 180deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
+                                        "conic-gradient(from 360deg, rgba(99,102,241,0.7), rgba(168,85,247,0.1), rgba(34,211,238,0.1), rgba(99,102,241,0.7))",
+                                    ],
+                                }}
+                                transition={{
+                                    rotate: { repeat: Infinity, duration: 5.5, ease: "linear" },
+                                    background: { repeat: Infinity, duration: 5.5, ease: "linear" },
+                                }}
+                                className="absolute rounded-full opacity-60 blur-[1px]"
+                                style={{ width: "61cqw", height: "61cqw", maxWidth: 112, maxHeight: 112, minWidth: 66, minHeight: 66 }}
                             />
-                        ))}
-                    </AnimatePresence>
+
+                            <div
+                                className="absolute rounded-full bg-white"
+                                style={{ width: "44cqw", height: "44cqw", maxWidth: 80, maxHeight: 80, minWidth: 47, minHeight: 47 }}
+                            />
+
+                            <motion.div
+                                animate={{ y: [0, -6, 0], rotate: [-1.2, 1.2, -1.2] }}
+                                transition={{ repeat: Infinity, duration: 4.6, ease: "easeInOut" }}
+                                className="relative z-20 flex items-center justify-center rounded-full bg-linear-to-br from-indigo-500 via-violet-500 to-purple-500 shadow-[0_24px_50px_-16px_rgba(99,102,241,0.75)]"
+                                style={{ width: "31cqw", height: "31cqw", maxWidth: 56, maxHeight: 56, minWidth: 33, minHeight: 33 }}
+                            >
+                                <Home className="w-1/2 h-1/2 text-white" />
+                            </motion.div>
+                        </div>
+
+                        {/* Chips top/bottom */}
+                        <AnimatePresence mode="popLayout">
+                            <TentacleChip
+                                key={`top-${assigned.top?.key}`}
+                                item={assigned.top}
+                                position="top"
+                            />
+                            <TentacleChip
+                                key={`bottom-${assigned.bottom?.key}`}
+                                item={assigned.bottom}
+                                position="bottom"
+                            />
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Columna derecha */}
+                    <div className="flex flex-col gap-4">
+                        <TentacleChip item={assigned.right_high} position="right_high" />
+                        <TentacleChip item={assigned.right_low} position="right_low" />
+                    </div>
                 </div>
 
-                {/* Grid 2 columnas: los factores que NO están en el círculo esta ronda */}
+                {/* Grid 2 columnas*/}
                 <div className="grid grid-cols-2 gap-3">
                     <AnimatePresence mode="popLayout">
                         {split.rest.map((item) => (
