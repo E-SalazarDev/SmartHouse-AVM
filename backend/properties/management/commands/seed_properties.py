@@ -1,145 +1,127 @@
+import json
+import math
+from pathlib import Path
+
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from properties.models import Property
 
 
+def clean_json(value):
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return None
+        return value
+
+    if isinstance(value, dict):
+        return {key: clean_json(val) for key, val in value.items()}
+
+    if isinstance(value, list):
+        return [clean_json(item) for item in value]
+
+    return value
+
+
 class Command(BaseCommand):
-    help = "Create demo properties for SmartHouse AVM"
+    help = "Carga propiedades desde properties/seeds/properties_seed.json"
 
     def handle(self, *args, **options):
+        json_path = (
+            Path(settings.BASE_DIR)
+            / "properties"
+            / "seeds"
+            / "properties_seed.json"
+        )
 
-        demo_properties = [
-            {
-                "title": "Casa Moderna grande CollgCr ",
-                "description": "Casa familiar de dos niveles basada en el dataset Ames Housing.",
-                "cover_image_url": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-                "address": "CollgCr, Ames, Iowa",
-                "latitude": "42.034534",
-                "longitude": "-93.620369",
+        if not json_path.exists():
+            self.stdout.write(self.style.ERROR(f"No existe: {json_path}"))
+            return
 
-                "dataset_id": 1,
-                "ms_sub_class": 60,
-                "ms_zoning": "RL",
-                "lot_frontage": 65.0,
-                "lot_area": 8450,
-                "neighborhood": "CollgCr",
-                "overall_qual": 7,
-                "overall_cond": 5,
-                "year_built": 2003,
-                "year_remod_add": 2003,
-                "gr_liv_area": 1710,
-                "full_bath": 2,
-                "half_bath": 1,
-                "bedroom_abv_gr": 3,
-                "kitchen_abv_gr": 1,
-                "kitchen_qual": "Gd",
-                "tot_rms_abv_grd": 8,
-                "total_bsmt_sf": 856,
-                "bsmt_qual": "Gd",
-                "garage_type": "Attchd",
-                "garage_cars": 2,
-                "garage_area": 548,
-                "fireplaces": 0,
-                "sale_condition": "Normal",
+        with open(json_path, "r", encoding="utf-8") as file:
+            raw_properties = json.load(file)
 
-                "model_input_data": {
-                    "Id": 1,
-                    "MSSubClass": 60,
-                    "MSZoning": "RL",
-                    "LotFrontage": 65.0,
-                    "LotArea": 8450,
-                    "Street": "Pave",
-                    "LotShape": "Reg",
-                    "LandContour": "Lvl",
-                    "Utilities": "AllPub",
-                    "LotConfig": "Inside",
-                    "LandSlope": "Gtl",
-                    "Neighborhood": "CollgCr",
-                    "Condition1": "Norm",
-                    "Condition2": "Norm",
-                    "BldgType": "1Fam",
-                    "HouseStyle": "2Story",
-                    "OverallQual": 7,
-                    "OverallCond": 5,
-                    "YearBuilt": 2003,
-                    "YearRemodAdd": 2003,
-                    "RoofStyle": "Gable",
-                    "RoofMatl": "CompShg",
-                    "Exterior1st": "VinylSd",
-                    "Exterior2nd": "VinylSd",
-                    "MasVnrType": "BrkFace",
-                    "MasVnrArea": 196.0,
-                    "ExterQual": "Gd",
-                    "ExterCond": "TA",
-                    "Foundation": "PConc",
-                    "BsmtQual": "Gd",
-                    "BsmtCond": "TA",
-                    "BsmtExposure": "No",
-                    "BsmtFinType1": "GLQ",
-                    "BsmtFinSF1": 706,
-                    "BsmtFinType2": "Unf",
-                    "BsmtFinSF2": 0,
-                    "BsmtUnfSF": 150,
-                    "TotalBsmtSF": 856,
-                    "Heating": "GasA",
-                    "HeatingQC": "Ex",
-                    "CentralAir": "Y",
-                    "Electrical": "SBrkr",
-                    "1stFlrSF": 856,
-                    "2ndFlrSF": 854,
-                    "LowQualFinSF": 0,
-                    "GrLivArea": 1710,
-                    "BsmtFullBath": 1,
-                    "BsmtHalfBath": 0,
-                    "FullBath": 2,
-                    "HalfBath": 1,
-                    "BedroomAbvGr": 3,
-                    "KitchenAbvGr": 1,
-                    "KitchenQual": "Gd",
-                    "TotRmsAbvGrd": 8,
-                    "Functional": "Typ",
-                    "Fireplaces": 0,
-                    "FireplaceQu": "No Fireplace",
-                    "GarageType": "Attchd",
-                    "GarageYrBlt": 2003.0,
-                    "GarageFinish": "RFn",
-                    "GarageCars": 2,
-                    "GarageArea": 548,
-                    "GarageQual": "TA",
-                    "GarageCond": "TA",
-                    "PavedDrive": "Y",
-                    "WoodDeckSF": 0,
-                    "OpenPorchSF": 61,
-                    "EnclosedPorch": 0,
-                    "3SsnPorch": 0,
-                    "ScreenPorch": 0,
-                    "PoolArea": 0,
-                    "MiscVal": 0,
-                    "MoSold": 2,
-                    "YrSold": 2008,
-                    "SaleType": "WD",
-                    "SaleCondition": "Normal"
-                },
-                "is_active": True,
-            }
-        ]
+        created_count = 0
+        updated_count = 0
+        error_count = 0
 
-        for property_data in demo_properties:
-            property_obj, created = Property.objects.get_or_create(
-                dataset_id=property_data["dataset_id"],
-                title=property_data["title"],
-                defaults=property_data
-            )
+        for item in raw_properties:
+            try:
+                model_input_data = item.get("model_input_data")
 
-            if created:
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Created property: {property_obj.title}"
-                    )
+                if model_input_data is None:
+                    model_input_data = item.copy()
+
+                if isinstance(model_input_data, str):
+                    model_input_data = json.loads(model_input_data)
+
+                model_input_data = clean_json(model_input_data)
+
+                model_input_data.pop("SalePrice", None)
+
+                dataset_id = item.get("dataset_id") or model_input_data.get("Id")
+
+                property_data = {
+                    "title": item.get("title") or f"Casa Demo {dataset_id}",
+                    "description": item.get("description") or "Propiedad basada en el dataset Ames Housing.",
+                    "cover_image_url": item.get("cover_image_url") or "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+                    "address": item.get("address") or f"{model_input_data.get('Neighborhood', 'Ames')}, Ames, Iowa",
+                    "latitude": item.get("latitude") or "42.034534",
+                    "longitude": item.get("longitude") or "-93.620369",
+
+                    "dataset_id": dataset_id,
+                    "ms_sub_class": item.get("ms_sub_class") or model_input_data.get("MSSubClass"),
+                    "ms_zoning": item.get("ms_zoning") or model_input_data.get("MSZoning"),
+                    "lot_frontage": item.get("lot_frontage") or model_input_data.get("LotFrontage"),
+                    "lot_area": item.get("lot_area") or model_input_data.get("LotArea"),
+                    "neighborhood": item.get("neighborhood") or model_input_data.get("Neighborhood"),
+                    "overall_qual": item.get("overall_qual") or model_input_data.get("OverallQual"),
+                    "overall_cond": item.get("overall_cond") or model_input_data.get("OverallCond"),
+                    "year_built": item.get("year_built") or model_input_data.get("YearBuilt"),
+                    "year_remod_add": item.get("year_remod_add") or model_input_data.get("YearRemodAdd"),
+                    "gr_liv_area": item.get("gr_liv_area") or model_input_data.get("GrLivArea"),
+                    "full_bath": item.get("full_bath") or model_input_data.get("FullBath"),
+                    "half_bath": item.get("half_bath") or model_input_data.get("HalfBath"),
+                    "bedroom_abv_gr": item.get("bedroom_abv_gr") or model_input_data.get("BedroomAbvGr"),
+                    "kitchen_abv_gr": item.get("kitchen_abv_gr") or model_input_data.get("KitchenAbvGr"),
+                    "kitchen_qual": item.get("kitchen_qual") or model_input_data.get("KitchenQual"),
+                    "tot_rms_abv_grd": item.get("tot_rms_abv_grd") or model_input_data.get("TotRmsAbvGrd"),
+                    "total_bsmt_sf": item.get("total_bsmt_sf") or model_input_data.get("TotalBsmtSF"),
+                    "bsmt_qual": item.get("bsmt_qual") or model_input_data.get("BsmtQual"),
+                    "garage_type": item.get("garage_type") or model_input_data.get("GarageType"),
+                    "garage_cars": item.get("garage_cars") or model_input_data.get("GarageCars"),
+                    "garage_area": item.get("garage_area") or model_input_data.get("GarageArea"),
+                    "fireplaces": item.get("fireplaces") or model_input_data.get("Fireplaces"),
+                    "sale_condition": item.get("sale_condition") or model_input_data.get("SaleCondition"),
+                    "model_input_data": model_input_data,
+                    "is_active": item.get("is_active", True),
+                }
+
+                property_obj = (
+                    Property.objects
+                    .filter(dataset_id=dataset_id)
+                    .order_by("id")
+                    .first()
                 )
-            else:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"Property already exists: {property_obj.title}"
-                    )
-                )
+
+                if property_obj:
+                    for field, value in property_data.items():
+                        setattr(property_obj, field, value)
+
+                    property_obj.save()
+                    updated_count += 1
+                    self.stdout.write(self.style.WARNING(f"Actualizada: {property_obj.title}"))
+                else:
+                    property_obj = Property.objects.create(**property_data)
+                    created_count += 1
+                    self.stdout.write(self.style.SUCCESS(f"Creada: {property_obj.title}"))
+
+            except Exception as error:
+                error_count += 1
+                self.stdout.write(self.style.ERROR(f"Error: {error}"))
+
+        self.stdout.write("=" * 50)
+        self.stdout.write(self.style.SUCCESS(f"Creadas: {created_count}"))
+        self.stdout.write(self.style.WARNING(f"Actualizadas: {updated_count}"))
+        self.stdout.write(self.style.ERROR(f"Errores: {error_count}"))
+        self.stdout.write("=" * 50)
