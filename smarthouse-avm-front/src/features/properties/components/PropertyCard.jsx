@@ -1,69 +1,68 @@
-import Card from "../../../components/ui/Card";
 import img from "../../../assets/house.png";
 
 export default function PropertyCard({ property }) {
   return (
-    <Card
-      padded={false}
-      className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-    >
-      <div className="relative h-64 overflow-hidden">
+    <article className="group w-full max-w-md overflow-hidden rounded-4xl bg-white p-3 shadow-[0_24px_70px_-35px_rgba(15,23,42,.55)] ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-[0_34px_90px_-40px_rgba(99,102,241,.7)]">
+      <div className="relative overflow-hidden rounded-[1.6rem] bg-slate-950 p-4 text-white">
         <img
           src={property.cover_image_url || img}
           alt={property.title}
           loading="lazy"
-          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-110"
         />
 
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-950 via-slate-950/80 to-slate-950/20" />
 
-        <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-slate-800 shadow-sm backdrop-blur">
-          Calidad {property.overall_qual}/10
-        </span>
+        <div className="relative z-10 flex min-h-72 flex-col justify-between">
+          <div className="flex items-start justify-between gap-4">
+            <span className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-bold backdrop-blur-md">
+              Calidad {property.overall_qual}/10
+            </span>
 
-        <div className="absolute bottom-4 left-4 right-4">
-          <h3 className="line-clamp-1 text-xl font-bold text-white">
-            {property.title}
-          </h3>
+            <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
+              Activa
+            </span>
+          </div>
 
-          <p className="mt-1 text-sm text-white/80">
-            {property.neighborhood || "Ubicación no disponible"}
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-violet-300">
+              {property.neighborhood}
+            </p>
+
+            <h3 className="max-w-xs text-3xl font-black leading-none">
+              {property.title}
+            </h3>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <Mini label="Área" value={`${property.gr_liv_area} ft²`} />
+              <Mini label="Baños" value={property.full_bath} />
+              <Mini label="Hab." value={property.bedroom_abv_gr} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 px-2 py-4">
+        <div>
+          <p className="text-xs font-semibold text-slate-400">Construida en</p>
+          <p className="text-xl font-black text-slate-950">
+            {property.year_built}
           </p>
         </div>
-      </div>
 
-      <div className="p-5">
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="rounded-2xl bg-slate-100 p-3">
-            <p className="text-xs text-slate-500">Año</p>
-            <p className="font-bold text-slate-900">{property.year_built}</p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-100 p-3">
-            <p className="text-xs text-slate-500">Área</p>
-            <p className="font-bold text-slate-900">
-              {property.gr_liv_area} ft²
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-100 p-3">
-            <p className="text-xs text-slate-500">Baños</p>
-            <p className="font-bold text-slate-900">{property.full_bath}</p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-100 p-3">
-            <p className="text-xs text-slate-500">Recámaras</p>
-            <p className="font-bold text-slate-900">
-              {property.bedroom_abv_gr}
-            </p>
-          </div>
-        </div>
-
-        <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 font-bold text-white transition hover:bg-blue-600">
-          Ver detalle
-          <span>→</span>
+        <button className="rounded-full bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:bg-violet-600">
+          Ver detalle →
         </button>
       </div>
-    </Card>
+    </article>
+  );
+}
+
+function Mini({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-md">
+      <p className="text-[11px] text-white/55">{label}</p>
+      <p className="mt-1 font-black text-white">{value}</p>
+    </div>
   );
 }
