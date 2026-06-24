@@ -6,7 +6,7 @@ from .models import PredictionRequest
 class PredictionHistorySerializer(serializers.ModelSerializer):
 
     created_at = serializers.DateTimeField(
-        format="%d/%m/%Y"
+        format="%d/%m/%Y %H:%M"
     )
 
     class Meta:
@@ -24,7 +24,7 @@ class PredictionHistorySerializer(serializers.ModelSerializer):
 class PredictionDetailSerializer(serializers.ModelSerializer):
 
     created_at = serializers.DateTimeField(
-        format="%d/%m/%Y"
+        format="%d/%m/%Y %H:%M"
     )
 
     class Meta:

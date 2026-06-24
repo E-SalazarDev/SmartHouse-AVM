@@ -3,7 +3,7 @@ from  properties.models import Property
 
 class PredictionRequest(models.Model):
     
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     input_data = models.JSONField()
     

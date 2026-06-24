@@ -4,7 +4,7 @@ from rest_framework import status
 from predictions.models import PredictionRequest
 from predictions.ml_model import predict_house_price
 from django.db.models import Avg
-from django.utils import timezone
+
 
 from .models import Property
 from .serializers import (
@@ -33,7 +33,6 @@ class PropertyListView(APIView):
         )
 
     def post(self, request):
-
      serializer = PropertyDetailSerializer(
         data=request.data
      )

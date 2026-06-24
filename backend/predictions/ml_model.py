@@ -20,6 +20,11 @@ _model = None
 def load_model():
     global _model
 
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(
+            f"Model file not found at: {MODEL_PATH}"
+        )
+
     if _model is None:
         _model = joblib.load(MODEL_PATH)
 
