@@ -23,6 +23,19 @@ def clean_json(value):
     return value
 
 
+def get_quality_category(overall_qual):
+    if overall_qual <= 3:
+        return "low"
+
+    if overall_qual <= 6:
+        return "medium"
+
+    if overall_qual <= 8:
+        return "high"
+
+    return "luxury"
+
+
 class Command(BaseCommand):
     help = "Carga propiedades desde properties/seeds/properties_seed.json"
 
@@ -34,12 +47,25 @@ class Command(BaseCommand):
             / "properties_seed.json"
         )
 
+        media_houses_path = (
+            Path(settings.BASE_DIR)
+            / "media"
+            / "houses"
+        )
+
         if not json_path.exists():
             self.stdout.write(self.style.ERROR(f"No existe: {json_path}"))
             return
 
         with open(json_path, "r", encoding="utf-8") as file:
             raw_properties = json.load(file)
+
+        image_counters = {
+            "low": 1,
+            "medium": 1,
+            "high": 1,
+            "luxury": 1,
+        }
 
         created_count = 0
         updated_count = 0
@@ -56,15 +82,34 @@ class Command(BaseCommand):
                     model_input_data = json.loads(model_input_data)
 
                 model_input_data = clean_json(model_input_data)
-
                 model_input_data.pop("SalePrice", None)
 
                 dataset_id = item.get("dataset_id") or model_input_data.get("Id")
+                overall_qual = item.get("overall_qual") or model_input_data.get("OverallQual")
+
+                category = get_quality_category(int(overall_qual))
+
+                category_path = media_houses_path / category
+                total_images = len(list(category_path.glob("*.jpg")))
+
+                if total_images == 0:
+                    cover_image_url = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6"
+                else:
+                    image_number = image_counters[category]
+
+                    if image_number > total_images:
+                        image_number = 1
+                        image_counters[category] = 1
+
+                    filename = f"{category}_{image_number:03}.jpg"
+                    cover_image_url = f"/media/houses/{category}/{filename}"
+
+                    image_counters[category] += 1
 
                 property_data = {
                     "title": item.get("title") or f"Casa Demo {dataset_id}",
                     "description": item.get("description") or "Propiedad basada en el dataset Ames Housing.",
-                    "cover_image_url": item.get("cover_image_url") or "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+                    "cover_image_url": cover_image_url,
                     "address": item.get("address") or f"{model_input_data.get('Neighborhood', 'Ames')}, Ames, Iowa",
                     "latitude": item.get("latitude") or "42.034534",
                     "longitude": item.get("longitude") or "-93.620369",
@@ -75,7 +120,7 @@ class Command(BaseCommand):
                     "lot_frontage": item.get("lot_frontage") or model_input_data.get("LotFrontage"),
                     "lot_area": item.get("lot_area") or model_input_data.get("LotArea"),
                     "neighborhood": item.get("neighborhood") or model_input_data.get("Neighborhood"),
-                    "overall_qual": item.get("overall_qual") or model_input_data.get("OverallQual"),
+                    "overall_qual": overall_qual,
                     "overall_cond": item.get("overall_cond") or model_input_data.get("OverallCond"),
                     "year_built": item.get("year_built") or model_input_data.get("YearBuilt"),
                     "year_remod_add": item.get("year_remod_add") or model_input_data.get("YearRemodAdd"),
@@ -110,11 +155,19 @@ class Command(BaseCommand):
 
                     property_obj.save()
                     updated_count += 1
-                    self.stdout.write(self.style.WARNING(f"Actualizada: {property_obj.title}"))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Actualizada: {property_obj.title} -> {cover_image_url}"
+                        )
+                    )
                 else:
                     property_obj = Property.objects.create(**property_data)
                     created_count += 1
-                    self.stdout.write(self.style.SUCCESS(f"Creada: {property_obj.title}"))
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Creada: {property_obj.title} -> {cover_image_url}"
+                        )
+                    )
 
             except Exception as error:
                 error_count += 1
