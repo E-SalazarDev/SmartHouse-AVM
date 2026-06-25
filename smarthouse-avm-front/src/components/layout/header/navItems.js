@@ -1,4 +1,4 @@
-import { Compass, History, Home } from "lucide-react";
+import { Compass, History, Home, } from "lucide-react";
 
 export const navItems = [
     {
@@ -7,13 +7,28 @@ export const navItems = [
         uri: "/home",
     },
     {
+        icon: Compass,
+        label: "Explorar",
+        uri: "/explorar",
+    },
+    {
         icon: History,
         label: "Historial",
         uri: "/historial",
     },
     {
         icon: Compass,
-        label: "Explorar",
-        uri: "/explorar",
+        label: "Favoritos",
+        uri: "/favoritos",
+    },
+    {
+        icon: Compass,
+        label: "Comparador",
+        uri: "/comparador",
+    },
+    {
+        icon: Compass,
+        label: "Valuaciones",
+        uri: "/valuaciones",
     },
 ];

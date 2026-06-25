@@ -4,6 +4,7 @@ import MainLayout from "../layouts/MainLayout";
 
 import Home from "../pages/Home/Home";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import ExplorePropeties from "../pages/ExploreProperties/ExploreProperties";
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +26,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/explorar",
-        element: <Dashboard />,
+        element: <ExplorePropeties />,
+      },
+      {
+        path: "/detalle",
+        element: <ExplorePropeties />,
       },
     ],
   },
