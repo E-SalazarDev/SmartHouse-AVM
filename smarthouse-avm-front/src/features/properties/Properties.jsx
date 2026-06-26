@@ -3,12 +3,20 @@ import { useEffect, useState } from "react";
 import Grid from "../../components/ui/Grid";
 import PageTitle from "../../components/ui/PageTitle";
 import PropertyCard from "./components/PropertyCard";
+import { useNavigate } from "react-router-dom";
 import { getProperties } from "./api/propertiesApi";
 
 export default function Properties() {
+    const navigate = useNavigate();
+
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+
+    const propertyDetail= ()=>{
+               navigate(`detalle`)
+    }
 
     useEffect(() => {
         async function loadProperties() {
@@ -46,6 +54,7 @@ export default function Properties() {
                     <PropertyCard
                         key={property.id}
                         property={property}
+                        onClick={propertyDetail}
                     />
                 ))}
             </Grid>
