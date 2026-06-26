@@ -1,0 +1,1 @@
+export default function PropertyFeatures(second) {third}
