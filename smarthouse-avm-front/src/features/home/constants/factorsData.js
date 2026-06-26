@@ -9,7 +9,6 @@ import {
     Hammer,
 } from "lucide-react";
 
-
 export const factors = [
     { key: "calidad", label: "Calidad", icon: Hammer, value: "7 / 10" },
     { key: "vecindario", label: "Vecindario", icon: Compass, value: "CollgCr" },
@@ -21,7 +20,6 @@ export const factors = [
     { key: "habitaciones", label: "Habitaciones", icon: BedDouble, value: "3" },
 ];
 
-
 export const tentaclePositions = [
     "top",
     "bottom",
@@ -31,37 +29,60 @@ export const tentaclePositions = [
     "right_low",
 ];
 
+
+const CENTER = { x: 100, y: 230 };
+const HALO_R = 46;
+
+
+const ENDPOINTS = {
+    top: { x: 100, y: 26 },
+    bottom: { x: 100, y: 434 },
+    left_high: { x: 4, y: 150 },
+    left_low: { x: 4, y: 310 },
+    right_high: { x: 196, y: 150 },
+    right_low: { x: 196, y: 310 },
+};
+
+function startPoint(pos) {
+    const end = ENDPOINTS[pos];
+    const dx = end.x - CENTER.x;
+    const dy = end.y - CENTER.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    return {
+        x: CENTER.x + (dx / len) * HALO_R,
+        y: CENTER.y + (dy / len) * HALO_R,
+    };
+}
+
+function buildVariants(pos, bend) {
+    const s = startPoint(pos);
+    const e = ENDPOINTS[pos];
+    const midX = (s.x + e.x) / 2;
+    const midY = (s.y + e.y) / 2;
+    const nx = -(e.y - s.y);
+    const ny = e.x - s.x;
+    const nlen = Math.sqrt(nx * nx + ny * ny) || 1;
+    const ux = nx / nlen;
+    const uy = ny / nlen;
+
+    return bend.map((amount) => {
+        const c1x = s.x + (e.x - s.x) * 0.33 + ux * amount;
+        const c1y = s.y + (e.y - s.y) * 0.33 + uy * amount;
+        const c2x = s.x + (e.x - s.x) * 0.66 + ux * amount * 0.4;
+        const c2y = s.y + (e.y - s.y) * 0.66 + uy * amount * 0.4;
+        return `M${s.x.toFixed(1)},${s.y.toFixed(1)} C${c1x.toFixed(1)},${c1y.toFixed(
+            1
+        )} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${e.x.toFixed(1)},${e.y.toFixed(1)}`;
+    });
+}
+
 export const tentaclePaths = {
-    top: [
-        "M82,182 C98,131 70,79 82,26",
-        "M82,182 C68,131 98,79 82,26",
-        "M82,182 C90,131 90,79 82,26",
-    ],
-    bottom: [
-        "M82,278 C66,329 94,381 82,434",
-        "M82,278 C96,329 66,381 82,434",
-        "M82,278 C74,329 74,381 82,434",
-    ],
-    left_high: [
-        "M48,196 C46,160 6,145 0,110",
-        "M48,196 C20,174 30,131 0,110",
-        "M48,196 C39,164 23,135 0,110",
-    ],
-    left_low: [
-        "M48,264 C18,285 27,327 0,350",
-        "M48,264 C44,299 2,313 0,350",
-        "M48,264 C25,288 9,317 0,350",
-    ],
-    right_high: [
-        "M116,196 C146,175 137,133 164,110",
-        "M116,196 C120,161 162,147 164,110",
-        "M116,196 C139,172 155,143 164,110",
-    ],
-    right_low: [
-        "M116,264 C118,300 158,315 164,350",
-        "M116,264 C144,286 134,329 164,350",
-        "M116,264 C125,296 141,325 164,350",
-    ],
+    top: buildVariants("top", [-14, 14, 0]),
+    bottom: buildVariants("bottom", [14, -14, 0]),
+    left_high: buildVariants("left_high", [-16, 12, -4]),
+    left_low: buildVariants("left_low", [16, -12, 4]),
+    right_high: buildVariants("right_high", [16, -12, 4]),
+    right_low: buildVariants("right_low", [-16, 12, -4]),
 };
 
 
