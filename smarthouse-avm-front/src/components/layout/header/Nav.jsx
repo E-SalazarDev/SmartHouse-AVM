@@ -9,8 +9,8 @@ export default function Nav() {
     const [hovered, setHovered] = useState(null);
 
     return (
-        <nav className="hidden md:flex items-center justify-center flex-1 px-2">
-            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1.5 backdrop-blur-md">
+        <nav className="hidden md:flex flex-1 items-center justify-center px-2">
+            <div className="flex items-center gap-0.5 rounded-full border border-white/8 bg-white/4 p-1.5">
                 {navItems.map(({ icon: Icon, label, uri }, index) => {
                     const isActive = location.pathname === uri;
                     const isHovered = hovered === index;
@@ -22,7 +22,7 @@ export default function Nav() {
                                 onMouseEnter={() => setHovered(index)}
                                 onMouseLeave={() => setHovered(null)}
                                 title={label}
-                                className="relative py-2 px-3 lg:px-4 rounded-full font-semibold flex items-center gap-2 text-sm transition-colors"
+                                className="relative flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors lg:px-4"
                             >
                                 {isActive && (
                                     <motion.span
@@ -39,7 +39,7 @@ export default function Nav() {
                                 {isHovered && !isActive && (
                                     <motion.span
                                         layoutId="nav-hover-pill"
-                                        className="absolute inset-0 rounded-full bg-white/10"
+                                        className="absolute inset-0 rounded-full bg-white/6"
                                         transition={{
                                             type: "spring",
                                             stiffness: 400,
@@ -52,7 +52,7 @@ export default function Nav() {
                                     className={`relative z-10 flex items-center gap-2 ${
                                         isActive
                                             ? "text-white"
-                                            : "text-white/65 hover:text-white"
+                                            : "text-white/55 hover:text-white/90"
                                     }`}
                                     animate={{ scale: isActive ? 1.02 : 1 }}
                                     transition={{
@@ -61,7 +61,7 @@ export default function Nav() {
                                         damping: 17,
                                     }}
                                 >
-                                    <Icon size={16} />
+                                    <Icon size={16} strokeWidth={2} />
                                     <span className="hidden lg:inline">
                                         {label}
                                     </span>
