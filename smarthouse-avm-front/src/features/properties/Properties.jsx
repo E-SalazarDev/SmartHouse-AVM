@@ -9,37 +9,34 @@ import { getProperties } from "./api/propertiesApi";
 import PageTitle from "../../components/ui/PageTitle";
 import PropertyCardSkeleton from "./components/PropertyCardSkeleton";
 import SectionHeader from "./components/SectionHeader";
-
+import { useQuery } from "@tanstack/react-query";
 
 
 export default function Properties() {
     const navigate = useNavigate();
 
-    const [properties, setProperties] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    const propertyDetail = () => {
-        navigate(`detalle`);
+    const {
+        data: dataProperties = [],
+        isLoading,
+        isFetching,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ["properties"],
+        queryFn: getProperties,
+        staleTime: 1000 * 60 * 5,
+        gcTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+    });
+
+    const propertyDetail = (propertyId) => {
+        navigate(`/explorar/${propertyId}`);
     };
 
-    useEffect(() => {
-        async function loadProperties() {
-            try {
-                const data = await getProperties();
-                setProperties(data);
-            } catch (error) {
-                setError(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadProperties();
-    }, []);
 
     // ---- Estado: cargando ----
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
                 <SectionHeader />
@@ -53,7 +50,7 @@ export default function Properties() {
     }
 
     // ---- Estado: error ----
-    if (error) {
+    if (isError) {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
                 <SectionHeader />
@@ -88,11 +85,11 @@ export default function Properties() {
             <SectionHeader />
 
             <Grid className="grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-10">
-                {properties.map((property) => (
+                {dataProperties.map((property) => (
                     <PropertyCard
                         key={property.id}
                         property={property}
-                        onClick={propertyDetail}
+                        onClick={()=>propertyDetail(property.id)}
                     />
                 ))}
             </Grid>
