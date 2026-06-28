@@ -27,7 +27,14 @@ const factors = [
     { key: "habitaciones", label: "Habitaciones", icon: BedDouble, value: "3" },
 ];
 
-const tentaclePositions = ["top", "bottom", "left_high", "left_low", "right_high", "right_low"];
+const tentaclePositions = [
+    "top",
+    "bottom",
+    "left_high",
+    "left_low",
+    "right_high",
+    "right_low",
+];
 
 const tentacleChipClass = {
     top: "absolute left-1/2 -translate-x-1/2 top-0",
@@ -36,13 +43,17 @@ const tentacleChipClass = {
 
 function pickRandomSplit(all, countInCircle) {
     const shuffled = [...all];
+
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    return { inCircle: shuffled.slice(0, countInCircle), rest: shuffled.slice(countInCircle) };
-}
 
+    return {
+        inCircle: shuffled.slice(0, countInCircle),
+        rest: shuffled.slice(countInCircle),
+    };
+}
 
 function pickBendVariant() {
     const bends = [-16, -8, 0, 8, 16];
@@ -51,29 +62,43 @@ function pickBendVariant() {
 
 function pickPathVariants(positions) {
     const out = {};
+
     positions.forEach((pos) => {
         out[pos] = pickBendVariant();
     });
+
     return out;
 }
 
 function buildPath(start, end, bend) {
     if (!start || !end) return "";
+
     const dx = end.x - start.x;
     const dy = end.y - start.y;
+
     const nx = -dy;
     const ny = dx;
     const nlen = Math.sqrt(nx * nx + ny * ny) || 1;
+
     const ux = (nx / nlen) * bend;
     const uy = (ny / nlen) * bend;
+
     const c1x = start.x + dx * 0.33 + ux;
     const c1y = start.y + dy * 0.33 + uy;
+
     const c2x = start.x + dx * 0.66 + ux * 0.5;
     const c2y = start.y + dy * 0.66 + uy * 0.5;
-    return `M${start.x.toFixed(1)},${start.y.toFixed(1)} C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${end.x.toFixed(1)},${end.y.toFixed(1)}`;
+
+    return `M${start.x.toFixed(1)},${start.y.toFixed(1)} C${c1x.toFixed(
+        1
+    )},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(
+        1
+    )} ${end.x.toFixed(1)},${end.y.toFixed(1)}`;
 }
 
 function TentacleChip({ item, position, chipRef }) {
+    if (!item) return null;
+
     const Icon = item.icon;
     const reverse = position.startsWith("right");
     const isVertical = position === "top" || position === "bottom";
@@ -87,7 +112,12 @@ function TentacleChip({ item, position, chipRef }) {
             initial={{ opacity: 0, scale: 0.6, filter: "blur(6px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.6, filter: "blur(6px)" }}
-            transition={{ duration: 0.45, type: "spring", stiffness: 260, damping: 24 }}
+            transition={{
+                duration: 0.45,
+                type: "spring",
+                stiffness: 260,
+                damping: 24,
+            }}
             whileHover={{ scale: 1.05 }}
             className={`${tentacleChipClass[position] ?? "relative"} ${
                 isVertical ? "w-max" : `w-fit ${sideClass}`
@@ -98,6 +128,7 @@ function TentacleChip({ item, position, chipRef }) {
             <div className="h-8 w-8 shrink-0 rounded-lg bg-slate-100 flex items-center justify-center">
                 <Icon className="w-4 h-4 text-indigo-600" />
             </div>
+
             <span className="text-[13px] font-semibold text-slate-700 whitespace-nowrap">
                 {item.label}
             </span>
@@ -106,7 +137,10 @@ function TentacleChip({ item, position, chipRef }) {
 }
 
 function RestFactorCard({ item }) {
+    if (!item) return null;
+
     const Icon = item.icon;
+
     return (
         <motion.div
             layout="position"
@@ -114,22 +148,37 @@ function RestFactorCard({ item }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ type: "spring", stiffness: 320, damping: 28, mass: 0.6 }}
+            transition={{
+                type: "spring",
+                stiffness: 320,
+                damping: 28,
+                mass: 0.6,
+            }}
             className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 shadow-[0_12px_30px_-22px_rgba(15,23,42,0.4)]"
         >
             <div className="h-9 w-9 shrink-0 rounded-xl bg-slate-100 flex items-center justify-center">
                 <Icon className="w-4 h-4 text-indigo-600" />
             </div>
+
             <div className="min-w-0">
-                <p className="text-[11px] font-medium text-slate-400">{item.label}</p>
-                <p className="text-sm font-bold text-slate-900 truncate">{item.value}</p>
+                <p className="text-[11px] font-medium text-slate-400">
+                    {item.label}
+                </p>
+                <p className="text-sm font-bold text-slate-900 truncate">
+                    {item.value}
+                </p>
             </div>
         </motion.div>
     );
 }
 
-
-function TentacleSvgOverlay({ wrapperRef, coreRef, chipRefs, pathVariants, rotationKey }) {
+function TentacleSvgOverlay({
+    wrapperRef,
+    coreRef,
+    chipRefs,
+    pathVariants,
+    rotationKey,
+}) {
     const [points, setPoints] = useState(null);
     const [box, setBox] = useState({ w: 0, h: 0 });
     const lastPointsRef = useRef({});
@@ -137,30 +186,41 @@ function TentacleSvgOverlay({ wrapperRef, coreRef, chipRefs, pathVariants, rotat
     const measure = useCallback(() => {
         const wrapper = wrapperRef.current;
         const core = coreRef.current;
+
         if (!wrapper || !core) return;
 
         const wrapperRect = wrapper.getBoundingClientRect();
-        setBox({ w: wrapperRect.width, h: wrapperRect.height });
+
+        setBox({
+            w: wrapperRect.width,
+            h: wrapperRect.height,
+        });
 
         const coreRect = core.getBoundingClientRect();
+
         const center = {
             x: coreRect.left + coreRect.width / 2 - wrapperRect.left,
             y: coreRect.top + coreRect.height / 2 - wrapperRect.top,
         };
+
         const haloRadius = coreRect.width / 2 + 6;
 
         const next = { ...lastPointsRef.current };
+
         tentaclePositions.forEach((pos) => {
             const chipEl = chipRefs.current[pos];
-            
+
             if (!chipEl) return;
+
             const r = chipEl.getBoundingClientRect();
+
             if (r.width === 0 || r.height === 0) return;
 
             const chipCenter = {
                 x: r.left + r.width / 2 - wrapperRect.left,
                 y: r.top + r.height / 2 - wrapperRect.top,
             };
+
             const dx = chipCenter.x - center.x;
             const dy = chipCenter.y - center.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -171,34 +231,55 @@ function TentacleSvgOverlay({ wrapperRef, coreRef, chipRefs, pathVariants, rotat
             };
 
             let end;
+
             if (pos === "top") {
-                end = { x: chipCenter.x, y: r.bottom - wrapperRect.top };
+                end = {
+                    x: chipCenter.x,
+                    y: r.bottom - wrapperRect.top + 8,
+                };
             } else if (pos === "bottom") {
-                end = { x: chipCenter.x, y: r.top - wrapperRect.top };
+                end = {
+                    x: chipCenter.x,
+                    y: r.top - wrapperRect.top - 8,
+                };
             } else if (pos.startsWith("left")) {
-                end = { x: r.right - wrapperRect.left, y: chipCenter.y };
+                end = {
+                    x: r.right - wrapperRect.left,
+                    y: chipCenter.y,
+                };
             } else {
-                end = { x: r.left - wrapperRect.left, y: chipCenter.y };
+                end = {
+                    x: r.left - wrapperRect.left,
+                    y: chipCenter.y,
+                };
             }
+
             next[pos] = { start, end };
         });
+
         lastPointsRef.current = next;
         setPoints(next);
     }, [wrapperRef, coreRef, chipRefs]);
 
     useLayoutEffect(() => {
         measure();
-       
+
         const timeouts = [0, 16, 50, 120, 220, 360, 500].map((ms) =>
             setTimeout(measure, ms)
         );
+
         return () => timeouts.forEach(clearTimeout);
     }, [measure, rotationKey]);
 
     useEffect(() => {
         const ro = new ResizeObserver(() => measure());
-        if (wrapperRef.current) ro.observe(wrapperRef.current);
+
+        if (wrapperRef.current) {
+            ro.observe(wrapperRef.current);
+        }
+
         window.addEventListener("resize", measure);
+
         return () => {
             ro.disconnect();
             window.removeEventListener("resize", measure);
@@ -222,40 +303,57 @@ function TentacleSvgOverlay({ wrapperRef, coreRef, chipRefs, pathVariants, rotat
                 </linearGradient>
             </defs>
 
-            <AnimatePresence mode="popLayout">
-                {tentaclePositions.map((pos, index) => {
-                    const p = points[pos];
-                    if (!p) return null;
-                    const d = buildPath(p.start, p.end, pathVariants[pos] ?? 0);
-                    return (
-                        <motion.path
-                            key={`${pos}-${rotationKey}`}
-                            d={d}
-                            stroke="url(#neuralLine)"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            fill="none"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ delay: 0.1 + index * 0.12, duration: 1.2, ease: "easeInOut" }}
-                        />
-                    );
-                })}
-            </AnimatePresence>
+            {tentaclePositions.map((pos, index) => {
+                const p = points[pos];
+
+                if (!p) return null;
+
+                const d = buildPath(p.start, p.end, pathVariants[pos] ?? 0);
+
+                return (
+                    <motion.path
+                        key={pos}
+                        d={d}
+                        stroke="url(#neuralLine)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        fill="none"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{
+                            d,
+                            pathLength: 1,
+                            opacity: 1,
+                        }}
+                        exit={false}
+                        transition={{
+                            delay: 0.1 + index * 0.12,
+                            duration: 1.2,
+                            ease: "easeInOut",
+                        }}
+                    />
+                );
+            })}
 
             {tentaclePositions.map((pos, index) => {
                 const p = points[pos];
+
                 if (!p) return null;
+
                 const d = buildPath(p.start, p.end, pathVariants[pos] ?? 0);
+
                 return (
                     <motion.circle
-                        key={`${pos}-pulse-${rotationKey}`}
+                        key={`${pos}-pulse`}
                         r="4"
                         fill="#8b5cf6"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: [0, 1, 0] }}
-                        transition={{ delay: 1 + index * 0.3, duration: 1.8, repeat: Infinity, repeatDelay: 2.4 }}
+                        transition={{
+                            delay: 1 + index * 0.3,
+                            duration: 1.8,
+                            repeat: Infinity,
+                            repeatDelay: 2.4,
+                        }}
                     >
                         <animateMotion dur="3.2s" repeatCount="indefinite" path={d} />
                     </motion.circle>
@@ -267,10 +365,12 @@ function TentacleSvgOverlay({ wrapperRef, coreRef, chipRefs, pathVariants, rotat
 
 function AiValuationCard() {
     const [split, setSplit] = useState(() => pickRandomSplit(factors, 6));
-    const [pathVariants, setPathVariants] = useState(() => pickPathVariants(tentaclePositions));
+    const [pathVariants, setPathVariants] = useState(() =>
+        pickPathVariants(tentaclePositions)
+    );
     const [rotationKey, setRotationKey] = useState(0);
-    const intervalRef = useRef(null);
 
+    const intervalRef = useRef(null);
     const wrapperRef = useRef(null);
     const coreRef = useRef(null);
     const chipRefs = useRef({});
@@ -281,14 +381,17 @@ function AiValuationCard() {
             setPathVariants(pickPathVariants(tentaclePositions));
             setRotationKey((k) => k + 1);
         }, ROTATE_EVERY_MS);
+
         return () => clearInterval(intervalRef.current);
     }, []);
 
     const assigned = useMemo(() => {
         const map = {};
+
         tentaclePositions.forEach((pos, i) => {
             map[pos] = split.inCircle[i];
         });
+
         return map;
     }, [split]);
 
@@ -308,8 +411,11 @@ function AiValuationCard() {
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                             SmartHouse AI
                         </p>
-                        <h3 className="text-lg font-bold text-slate-950">Motor de valuación</h3>
+                        <h3 className="text-lg font-bold text-slate-950">
+                            Motor de valuación
+                        </h3>
                     </div>
+
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Activo
@@ -325,19 +431,27 @@ function AiValuationCard() {
                             <TentacleChip
                                 item={assigned.left_high}
                                 position="left_high"
-                                chipRef={(el) => (chipRefs.current.left_high = el)}
+                                chipRef={(el) => {
+                                    chipRefs.current.left_high = el;
+                                }}
                             />
+
                             <TentacleChip
                                 item={assigned.left_low}
                                 position="left_low"
-                                chipRef={(el) => (chipRefs.current.left_low = el)}
+                                chipRef={(el) => {
+                                    chipRefs.current.left_low = el;
+                                }}
                             />
                         </div>
 
                         <div
                             ref={wrapperRef}
                             className="relative mx-auto"
-                            style={{ width: "clamp(150px, 30cqw, 220px)", aspectRatio: "200 / 460" }}
+                            style={{
+                                width: "clamp(150px, 30cqw, 220px)",
+                                aspectRatio: "200 / 460",
+                            }}
                         >
                             <TentacleSvgOverlay
                                 wrapperRef={wrapperRef}
@@ -361,21 +475,59 @@ function AiValuationCard() {
                                         ],
                                     }}
                                     transition={{
-                                        rotate: { repeat: Infinity, duration: 5.5, ease: "linear" },
-                                        background: { repeat: Infinity, duration: 5.5, ease: "linear" },
+                                        rotate: {
+                                            repeat: Infinity,
+                                            duration: 5.5,
+                                            ease: "linear",
+                                        },
+                                        background: {
+                                            repeat: Infinity,
+                                            duration: 5.5,
+                                            ease: "linear",
+                                        },
                                     }}
                                     className="absolute rounded-full opacity-60 blur-[1px]"
-                                    style={{ width: "61cqw", height: "61cqw", maxWidth: 112, maxHeight: 112, minWidth: 66, minHeight: 66 }}
+                                    style={{
+                                        width: "61cqw",
+                                        height: "61cqw",
+                                        maxWidth: 112,
+                                        maxHeight: 112,
+                                        minWidth: 66,
+                                        minHeight: 66,
+                                    }}
                                 />
+
                                 <div
                                     className="absolute rounded-full bg-white"
-                                    style={{ width: "44cqw", height: "44cqw", maxWidth: 80, maxHeight: 80, minWidth: 47, minHeight: 47 }}
+                                    style={{
+                                        width: "44cqw",
+                                        height: "44cqw",
+                                        maxWidth: 80,
+                                        maxHeight: 80,
+                                        minWidth: 47,
+                                        minHeight: 47,
+                                    }}
                                 />
+
                                 <motion.div
-                                    animate={{ y: [0, -6, 0], rotate: [-1.2, 1.2, -1.2] }}
-                                    transition={{ repeat: Infinity, duration: 4.6, ease: "easeInOut" }}
+                                    animate={{
+                                        y: [0, -6, 0],
+                                        rotate: [-1.2, 1.2, -1.2],
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 4.6,
+                                        ease: "easeInOut",
+                                    }}
                                     className="relative z-20 flex items-center justify-center rounded-full bg-linear-to-br from-indigo-500 via-violet-500 to-purple-500 shadow-[0_24px_50px_-16px_rgba(99,102,241,0.75)]"
-                                    style={{ width: "31cqw", height: "31cqw", maxWidth: 56, maxHeight: 56, minWidth: 33, minHeight: 33 }}
+                                    style={{
+                                        width: "31cqw",
+                                        height: "31cqw",
+                                        maxWidth: 56,
+                                        maxHeight: 56,
+                                        minWidth: 33,
+                                        minHeight: 33,
+                                    }}
                                 >
                                     <Home className="w-1/2 h-1/2 text-white" />
                                 </motion.div>
@@ -386,13 +538,18 @@ function AiValuationCard() {
                                     key={`top-${assigned.top?.key}`}
                                     item={assigned.top}
                                     position="top"
-                                    chipRef={(el) => (chipRefs.current.top = el)}
+                                    chipRef={(el) => {
+                                        chipRefs.current.top = el;
+                                    }}
                                 />
+
                                 <TentacleChip
                                     key={`bottom-${assigned.bottom?.key}`}
                                     item={assigned.bottom}
                                     position="bottom"
-                                    chipRef={(el) => (chipRefs.current.bottom = el)}
+                                    chipRef={(el) => {
+                                        chipRefs.current.bottom = el;
+                                    }}
                                 />
                             </AnimatePresence>
                         </div>
@@ -401,12 +558,17 @@ function AiValuationCard() {
                             <TentacleChip
                                 item={assigned.right_high}
                                 position="right_high"
-                                chipRef={(el) => (chipRefs.current.right_high = el)}
+                                chipRef={(el) => {
+                                    chipRefs.current.right_high = el;
+                                }}
                             />
+
                             <TentacleChip
                                 item={assigned.right_low}
                                 position="right_low"
-                                chipRef={(el) => (chipRefs.current.right_low = el)}
+                                chipRef={(el) => {
+                                    chipRefs.current.right_low = el;
+                                }}
                             />
                         </div>
                     </div>
@@ -414,7 +576,10 @@ function AiValuationCard() {
                     <div className="grid min-[640px]:hidden grid-cols-2 gap-3">
                         <AnimatePresence mode="popLayout">
                             {tentaclePositions.map((pos) => (
-                                <RestFactorCard key={assigned[pos]?.key} item={assigned[pos]} />
+                                <RestFactorCard
+                                    key={assigned[pos]?.key}
+                                    item={assigned[pos]}
+                                />
                             ))}
                         </AnimatePresence>
                     </div>
@@ -433,25 +598,38 @@ function AiValuationCard() {
                         <Brain className="w-4 h-4 text-indigo-300" />
                         <p className="text-sm font-semibold">Modelo predictivo</p>
                     </div>
+
                     <div className="grid grid-cols-3 gap-3">
                         <div>
                             <p className="text-lg font-bold">94.2%</p>
-                            <p className="text-[11px] text-slate-400">precisión</p>
+                            <p className="text-[11px] text-slate-400">
+                                precisión
+                            </p>
                         </div>
+
                         <div>
                             <p className="text-lg font-bold">79</p>
-                            <p className="text-[11px] text-slate-400">variables</p>
+                            <p className="text-[11px] text-slate-400">
+                                variables
+                            </p>
                         </div>
+
                         <div>
                             <p className="text-lg font-bold">38K</p>
-                            <p className="text-[11px] text-slate-400">registros</p>
+                            <p className="text-[11px] text-slate-400">
+                                registros
+                            </p>
                         </div>
                     </div>
+
                     <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">
                         <div className="flex items-center gap-2">
                             <Database className="w-4 h-4 text-cyan-300" />
-                            <span className="text-xs text-slate-300">Random Forest Regressor</span>
+                            <span className="text-xs text-slate-300">
+                                Random Forest Regressor
+                            </span>
                         </div>
+
                         <BadgeCheck className="w-4 h-4 text-emerald-300" />
                     </div>
                 </div>
