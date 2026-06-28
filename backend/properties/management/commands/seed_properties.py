@@ -24,6 +24,8 @@ def clean_json(value):
 
 
 def get_quality_category(overall_qual):
+    overall_qual = int(overall_qual)
+
     if overall_qual <= 3:
         return "low"
 
@@ -34,6 +36,21 @@ def get_quality_category(overall_qual):
         return "high"
 
     return "luxury"
+
+
+def get_cover_image_url(media_houses_path, category, dataset_id):
+    category_path = media_houses_path / category
+    images = sorted(category_path.glob("*.jpg"))
+
+    if not images:
+        raise FileNotFoundError(
+            f"No hay imágenes en la carpeta: {category_path}"
+        )
+
+    image_index = (int(dataset_id) - 1) % len(images)
+    image_path = images[image_index]
+
+    return f"/media/houses/{category}/{image_path.name}"
 
 
 class Command(BaseCommand):
@@ -60,13 +77,6 @@ class Command(BaseCommand):
         with open(json_path, "r", encoding="utf-8") as file:
             raw_properties = json.load(file)
 
-        image_counters = {
-            "low": 1,
-            "medium": 1,
-            "high": 1,
-            "luxury": 1,
-        }
-
         created_count = 0
         updated_count = 0
         error_count = 0
@@ -85,26 +95,19 @@ class Command(BaseCommand):
                 model_input_data.pop("SalePrice", None)
 
                 dataset_id = item.get("dataset_id") or model_input_data.get("Id")
-                overall_qual = item.get("overall_qual") or model_input_data.get("OverallQual")
+                overall_qual = (
+                    item.get("overall_qual")
+                    or model_input_data.get("OverallQual")
+                    or 5
+                )
 
-                category = get_quality_category(int(overall_qual))
+                category = get_quality_category(overall_qual)
 
-                category_path = media_houses_path / category
-                total_images = len(list(category_path.glob("*.jpg")))
-
-                if total_images == 0:
-                    cover_image_url = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6"
-                else:
-                    image_number = image_counters[category]
-
-                    if image_number > total_images:
-                        image_number = 1
-                        image_counters[category] = 1
-
-                    filename = f"{category}_{image_number:03}.jpg"
-                    cover_image_url = f"/media/houses/{category}/{filename}"
-
-                    image_counters[category] += 1
+                cover_image_url = get_cover_image_url(
+                    media_houses_path=media_houses_path,
+                    category=category,
+                    dataset_id=dataset_id,
+                )
 
                 property_data = {
                     "title": item.get("title") or f"Casa Demo {dataset_id}",
