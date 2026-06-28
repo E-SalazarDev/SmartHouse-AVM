@@ -65,8 +65,6 @@ export default function PropertyCard({ property, onClick }) {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="group relative flex flex-col overflow-hidden rounded-[1.4rem] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 transition-all duration-300 hover:shadow-[0_24px_55px_-25px_rgba(15,23,42,0.45)]"
@@ -80,6 +78,7 @@ export default function PropertyCard({ property, onClick }) {
           src={imageUrl}
           alt={title}
           loading="lazy"
+          decoding="async"
           onLoad={() => setImgLoaded(true)}
           onError={(event) => {
             event.currentTarget.src = "/placeholder-house.jpg";
