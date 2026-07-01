@@ -47,8 +47,7 @@ export default function PropertyDetail() {
 
     const imageUrl = resolveImageUrl(data.cover_image_url);
 
-    // Franja de datos rápidos que reemplaza los thumbnails mock —
-    // toda la información aquí es real, proviene del modelo de la propiedad.
+ 
     const quickFacts = [
         {
             icon: Sparkles,
@@ -96,9 +95,7 @@ export default function PropertyDetail() {
                         />
                     </Card>
 
-                    {/* Franja de datos rápidos — reemplaza los thumbnails mock.
-                        Mismo ritmo visual (4 columnas), pero con información
-                        real del modelo en vez de fotos de interiores que no existen. */}
+          
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         {quickFacts.map(({ icon: Icon, value, label, tone }, i) => (
                             <div
