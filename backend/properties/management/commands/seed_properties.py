@@ -43,9 +43,7 @@ def get_cover_image_url(media_houses_path, category, dataset_id):
     images = sorted(category_path.glob("*.jpg"))
 
     if not images:
-        raise FileNotFoundError(
-            f"No hay imágenes en la carpeta: {category_path}"
-        )
+        raise FileNotFoundError(f"No hay imágenes en la carpeta: {category_path}")
 
     image_index = (int(dataset_id) - 1) % len(images)
     image_path = images[image_index]
@@ -64,11 +62,7 @@ class Command(BaseCommand):
             / "properties_seed.json"
         )
 
-        media_houses_path = (
-            Path(settings.BASE_DIR)
-            / "media"
-            / "houses"
-        )
+        media_houses_path = Path(settings.BASE_DIR) / "media" / "houses"
 
         if not json_path.exists():
             self.stdout.write(self.style.ERROR(f"No existe: {json_path}"))
@@ -95,6 +89,7 @@ class Command(BaseCommand):
                 model_input_data.pop("SalePrice", None)
 
                 dataset_id = item.get("dataset_id") or model_input_data.get("Id")
+
                 overall_qual = (
                     item.get("overall_qual")
                     or model_input_data.get("OverallQual")
@@ -110,8 +105,8 @@ class Command(BaseCommand):
                 )
 
                 property_data = {
-                    "title": item.get("title") or f"Casa Demo {dataset_id}",
-                    "description": item.get("description") or "Propiedad basada en el dataset Ames Housing.",
+                    "title": item.get("title"),
+                    "description": item.get("description"),
                     "cover_image_url": cover_image_url,
                     "address": item.get("address") or f"{model_input_data.get('Neighborhood', 'Ames')}, Ames, Iowa",
                     "latitude": item.get("latitude") or "42.034534",
