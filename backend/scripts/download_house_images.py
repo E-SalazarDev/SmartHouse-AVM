@@ -17,19 +17,19 @@ MEDIA_DIR = BASE_DIR / "media" / "houses"
 CATEGORIES = {
     "low": {
         "query": "small simple american house exterior",
-        "total": 20,
+        "total": 80,
     },
     "medium": {
         "query": "suburban american family house exterior",
-        "total": 20,
+        "total": 120,
     },
     "high": {
         "query": "modern american house exterior",
-        "total": 20,
+        "total": 120,
     },
     "luxury": {
         "query": "luxury mansion exterior house",
-        "total": 20,
+        "total": 80,
     },
 }
 
