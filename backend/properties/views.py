@@ -1,56 +1,77 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from predictions.models import PredictionRequest
-from predictions.ml_model import predict_house_price
+
 from django.db.models import Avg
 
+from predictions.models import PredictionRequest
+from predictions.ml_model import predict_house_price
+from predictions.serializers import PredictionHistorySerializer
 
 from .models import Property
+from .pagination import PropertyPagination
 from .serializers import (
     PropertyListSerializer,
     PropertyDetailSerializer,
 )
-from predictions.serializers import PredictionHistorySerializer
 
 
 class PropertyListView(APIView):
 
+    # GET /api/properties/
+    # Obtiene propiedades activas con paginación.
     def get(self, request):
 
         properties = Property.objects.filter(
             is_active=True
         ).order_by("-created_at")
 
-        serializer = PropertyListSerializer(
+        paginator = PropertyPagination()
+
+        paginated_properties = paginator.paginate_queryset(
             properties,
+            request
+        )
+
+        serializer = PropertyListSerializer(
+            paginated_properties,
             many=True
         )
 
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+        return paginator.get_paginated_response(
+            serializer.data
         )
 
+    # POST /api/properties/
+    # Crea una nueva propiedad desde el JSON enviado.
     def post(self, request):
-     serializer = PropertyDetailSerializer(
-        data=request.data
-     )
 
-     if serializer.is_valid():
-        property_obj = serializer.save()
-
-        return Response(
-            PropertyDetailSerializer(property_obj).data,
-            status=status.HTTP_201_CREATED
+        serializer = PropertyDetailSerializer(
+            data=request.data
         )
 
-     return Response(
-         serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
-      )
+        if serializer.is_valid():
+            property_obj = serializer.save()
+
+            response_serializer = PropertyDetailSerializer(
+                property_obj
+            )
+
+            return Response(
+                response_serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
 class PropertyDetailView(APIView):
 
+    # GET /api/properties/<property_id>/
+    # Obtiene el detalle completo de una propiedad.
     def get(self, request, property_id):
 
         try:
@@ -76,6 +97,8 @@ class PropertyDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    # PUT /api/properties/<property_id>/
+    # Actualiza completamente una propiedad existente.
     def put(self, request, property_id):
 
         try:
@@ -110,6 +133,8 @@ class PropertyDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    # DELETE /api/properties/<property_id>/
+    # Desactiva una propiedad usando soft delete.
     def delete(self, request, property_id):
 
         try:
@@ -134,9 +159,13 @@ class PropertyDetailView(APIView):
                     "error": "Property not found"
                 },
                 status=status.HTTP_404_NOT_FOUND
-            )     
+            )
+
+
 class PropertyPredictionView(APIView):
 
+    # POST /api/properties/<property_id>/predict/
+    # Predice el precio de una propiedad guardada usando model_input_data.
     def post(self, request, property_id):
 
         try:
@@ -179,9 +208,12 @@ class PropertyPredictionView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-            
+
+
 class PropertyPredictionsHistoryView(APIView):
 
+    # GET /api/properties/<property_id>/predictions/
+    # Obtiene el historial de predicciones de una propiedad.
     def get(self, request, property_id):
 
         try:
@@ -211,9 +243,12 @@ class PropertyPredictionsHistoryView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-            
+
+
 class PropertyStatsView(APIView):
 
+    # GET /api/properties/stats/
+    # Obtiene estadísticas generales para el dashboard.
     def get(self, request):
 
         total_properties = Property.objects.count()
