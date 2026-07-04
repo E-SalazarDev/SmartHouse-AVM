@@ -1,4 +1,3 @@
-// src/features/propertyDetail/lib/propertyLabels.js
 
 export const QUALITY_LABELS = {
     Ex: "Excelente",

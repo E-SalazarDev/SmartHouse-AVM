@@ -1,26 +1,20 @@
-import Grid from "../../components/ui/Grid";
-import PageTitle from "../../components/ui/PageTitle";
-import AiButton from "./components/AIButton";
-import Card from "../../components/ui/Card";
-import PropertyFeatures from "./components/PropertyFeatures";
+import AiValuationCard from "./components/AiValuationCard";
+import PropertyDescription from "./components/PropertyDescription";
+import PropertyFeaturesCarousel from "./components/PropertyFeaturesCarousel";
+
 import { useQuery } from "@tanstack/react-query";
 import { getPropertyById, postPredictPropertyPrice } from "./api/propertyDetailApi";
 import { useParams } from "react-router-dom";
 import { resolveImageUrl } from "../../utils/media";
-import { MapPin, Sparkles, CalendarDays, LandPlot } from "lucide-react";
+
+import { MapPin, Star, Calendar, Layers } from "lucide-react";
 
 function qualityLabel(score) {
     if (score >= 9) return "Premium";
     if (score >= 7) return "Muy buena";
     if (score >= 5) return "Buena";
-    return "Estándar";
-}
-
-function qualityTone(score) {
-    if (score >= 9) return "text-violet-600 bg-violet-50";
-    if (score >= 7) return "text-indigo-600 bg-indigo-50";
-    if (score >= 5) return "text-amber-600 bg-amber-50";
-    return "text-slate-600 bg-slate-50";
+    if (score >= 3) return "Regular";
+    return "Básica";
 }
 
 export default function PropertyDetail() {
@@ -32,162 +26,101 @@ export default function PropertyDetail() {
     });
 
     if (isLoading) {
-        return <h3>loading..</h3>;
+        return (
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-500">
+                Cargando propiedad...
+            </div>
+        );
     }
 
     if (isError) {
         return (
-            <>
-                <h3>
-                    Oops <p>{error.toString()}</p>
-                </h3>
-            </>
+            <div className="rounded-3xl border border-red-100 bg-red-50 p-6 text-red-600">
+                Ocurrió un error: {error.toString()}
+            </div>
         );
     }
 
     const imageUrl = resolveImageUrl(data.cover_image_url);
 
- 
-    const quickFacts = [
+    const imageBadges = [
         {
-            icon: Sparkles,
-            value: qualityLabel(data.overall_qual),
-            label: `Calidad ${data.overall_qual}/10`,
-            tone: qualityTone(data.overall_qual),
+            icon: Star,
+            label: "Calidad",
+            value: `${qualityLabel(data.overall_qual)} · ${data.overall_qual}/10`,
         },
         {
-            icon: CalendarDays,
+            icon: Calendar,
+            label: "Año",
             value: data.year_built,
-            label: "Año de construcción",
-            tone: "text-slate-600 bg-slate-50",
         },
         {
-            icon: LandPlot,
-            value: data.ms_zoning,
-            label: "Zonificación",
-            tone: "text-slate-600 bg-slate-50",
-        },
-        {
-            icon: MapPin,
-            value: data.neighborhood,
+            icon: Layers,
             label: "Zona",
-            tone: "text-slate-600 bg-slate-50",
+            value: data.ms_zoning,
         },
     ];
 
     return (
-        <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
-            <PageTitle
-                eyebrow="Catálogo"
-                variant="default"
-                size="md"
-                title={data.title}
-            />
+        <section className="w-full rounded-4xl border border-slate-200 bg-linear-to-br from-[#f6f7fb] via-white to-violet-50/60 p-4 shadow-xl md:p-6">
+          <div className="grid items-stretch grid-cols-1 gap-4 xl:grid-cols-[51.5%_1fr] xl:gap-5">
 
-            <Grid className="grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-                {/* ---- Columna izquierda: galería ---- */}
-                <div className="flex flex-col gap-4">
-                    <Card padded={false} className="overflow-hidden rounded-3xl border border-slate-200">
-                        <img
-                            src={imageUrl}
-                            alt={data.title}
-                            className="h-80 w-full object-cover lg:h-96"
-                        />
-                    </Card>
+                {/* ─── Columna izquierda: imagen + AI card ─── */}
+                <div className="grid h-full grid-rows-[1fr_auto] gap-4">
 
-          
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {quickFacts.map(({ icon: Icon, value, label, tone }, i) => (
-                            <div
-                                key={i}
-                                className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3.5"
-                            >
-                                <div
-                                    className={`flex h-8 w-8 items-center justify-center rounded-xl ${tone}`}
-                                >
-                                    <Icon className="h-4 w-4" strokeWidth={2} />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="truncate text-sm font-semibold text-slate-900">
-                                        {value}
+                    {/* Imagen */}
+                    <div className="overflow-hidden rounded-[1.8rem] border border-white bg-white shadow-[0_18px_50px_rgba(15,23,42,0.10)]">
+                        <div className="relative">
+                            <img
+                                src={imageUrl}
+                                alt={data.title}
+                               className="h-72 w-full object-cover lg:h-102.5 xl:h-112.5"
+                            />
+
+                            <div className="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+
+                            <div className="absolute inset-x-0 bottom-0 p-6">
+                                <p className="text-[10px] font-black uppercase tracking-[0.26em] text-violet-200">
+                                    SmartHouse Property
+                                </p>
+
+                                <h2 className="mt-1.5 text-3xl font-bold leading-tight text-white">
+                                    {data.title}
+                                </h2>
+
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-lg">
+                                        <MapPin className="h-4 w-4 text-violet-600" />
+                                        {data.neighborhood}, Ames, Iowa
                                     </span>
-                                    <span className="text-xs text-slate-400">
-                                        {label}
-                                    </span>
+
+                                    {imageBadges.map(({ icon: Icon, label, value }) => (
+                                        <span
+                                            key={label}
+                                            className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/25 backdrop-blur-md"
+                                        >
+                                            <Icon className="h-4 w-4 text-violet-200" />
+                                            <span className="text-white/70">{label}:</span>
+                                            <span>{value}</span>
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        </div>
                     </div>
 
-                    {/* ---- Card de IA ---- */}
-                    <AiButton predictPrice={() => postPredictPropertyPrice(data.id)} />
+                    <AiValuationCard
+                        predictPrice={() => postPredictPropertyPrice(data.id)}
+                    />
                 </div>
 
-                {/* ---- Columna derecha: detalle ---- */}
-                <Card className="flex flex-col gap-5 rounded-3xl border border-slate-200 p-5 lg:p-6">
-                    {/* Título */}
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="flex flex-col gap-1">
-                            <h2 className="text-xl font-semibold text-slate-900 leading-snug">
-                                {data.title}
-                            </h2>
-                            <span className="inline-flex items-center gap-1.5 text-sm text-slate-500">
-                                <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
-                                {data.neighborhood}
-                            </span>
-                        </div>
-                    </div>
+                {/* ─── Columna derecha: descripción + carrusel ─── */}
+                <div className="grid h-full grid-rows-[auto_1fr] rounded-[1.8rem] border border-white bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
+                    <PropertyDescription description={data.description} />
 
-                    {/* Specs rápidas */}
-                    <PropertyFeatures property={data} />
-
-                    {/* Descripción */}
-                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
-                        <h3 className="text-sm font-semibold text-slate-900">
-                            Descripción
-                        </h3>
-                        <p className="text-sm leading-relaxed text-slate-500">
-                            {data.description}
-                        </p>
-                    </div>
-
-                    {/* Ubicación */}
-                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
-                        <h3 className="text-sm font-semibold text-slate-900">
-                            Ubicación
-                        </h3>
-                        <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span className="text-sm text-slate-600">
-                                Zona {data.neighborhood}
-                            </span>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500 shadow-sm">
-                                <MapPin className="h-4 w-4 text-white" strokeWidth={2.5} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Datos técnicos (key features) */}
-                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
-                        <h3 className="text-sm font-semibold text-slate-900">
-                            Datos técnicos
-                        </h3>
-                        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                            <li className="text-sm text-slate-500">
-                                • Calidad de construcción: {data.overall_qual}/10
-                            </li>
-                            <li className="text-sm text-slate-500">
-                                • Año de construcción: {data.year_built}
-                            </li>
-                            <li className="text-sm text-slate-500">
-                                • Zonificación: {data.ms_zoning}
-                            </li>
-                            <li className="text-sm text-slate-500">
-                                • Garage: {data.garage_cars} autos
-                            </li>
-                        </ul>
-                    </div>
-                </Card>
-            </Grid>
-        </div>
+                    <PropertyFeaturesCarousel data={data} />
+                </div>
+            </div>
+        </section>
     );
 }
