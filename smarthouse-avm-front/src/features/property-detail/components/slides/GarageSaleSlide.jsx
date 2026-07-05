@@ -3,13 +3,13 @@ import {
     Warehouse,
 } from "lucide-react";
 
-import SectionTitle from "./SectionTitle";
-import FeatureCard from "./FeatureCard";
+import SectionTitle from "../ui/SectionTitle";
+import FeatureCard from "../ui/FeatureCard";
 import {
     GARAGE_TYPE_LABELS,
     SALE_CONDITION_LABELS,
     translate,
-} from "../lib/propertyLabels";
+} from "../../lib/propertyLabels";
 
 export default function GarageSaleSlide({ data }) {
     const garageLabel = translate(

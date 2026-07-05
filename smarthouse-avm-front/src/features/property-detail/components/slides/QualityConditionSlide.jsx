@@ -5,9 +5,9 @@ import {
     Layers,
 } from "lucide-react";
 
-import SectionTitle from "./SectionTitle";
-import QualityMetric from "./QualityMetric";
-import { getQualityInfo } from "../lib/propertyLabels";
+import SectionTitle from "../ui/SectionTitle";
+import QualityMetric from "../ui/QualityMetric";
+import { getQualityInfo } from "../../lib/propertyLabels";
 
 function qualityLabel(score) {
     if (score >= 9) return "Premium";

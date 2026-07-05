@@ -1,10 +1,11 @@
 import { useState } from "react";
 
-import MainFeaturesSlide from "./MainFeaturesSlide";
-import QualityConditionSlide from "./QualityConditionSlide";
-import LandConstructionSlide from "./LandConstructionSlide";
-import GarageSaleSlide from "./GarageSaleSlide";
 import CarouselNavigation from "./CarouselNavigation";
+
+import MainFeaturesSlide from "../slides/MainFeaturesSlide";
+import QualityConditionSlide from "../slides/QualityConditionSlide";
+import LandConstructionSlide from "../slides/LandConstructionSlide";
+import GarageSaleSlide from "../slides/GarageSaleSlide";
 
 export default function PropertyFeaturesCarousel({ data }) {
     const [currentIndex, setCurrentIndex] = useState(0);

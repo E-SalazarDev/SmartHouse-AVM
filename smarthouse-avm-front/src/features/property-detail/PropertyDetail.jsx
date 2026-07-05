@@ -1,6 +1,6 @@
-import AiValuationCard from "./components/AiValuationCard";
-import PropertyDescription from "./components/PropertyDescription";
-import PropertyFeaturesCarousel from "./components/PropertyFeaturesCarousel";
+import AiValuationCard from "./components/ai/AiValuationCard";
+import PropertyDescription from "./components/description/PropertyDescription";
+import PropertyFeaturesCarousel from "./components/carousel/PropertyFeaturesCarousel";
 
 import { useQuery } from "@tanstack/react-query";
 import { getPropertyById, postPredictPropertyPrice } from "./api/propertyDetailApi";

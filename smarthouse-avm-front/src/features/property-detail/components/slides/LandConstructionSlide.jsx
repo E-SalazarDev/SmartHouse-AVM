@@ -7,9 +7,9 @@ import {
     Hash,
 } from "lucide-react";
 
-import SectionTitle from "./SectionTitle";
-import FeatureCard from "./FeatureCard";
-import { ZONING_LABELS, translate } from "../lib/propertyLabels";
+import SectionTitle from "../ui/SectionTitle";
+import FeatureCard from "../ui/FeatureCard";
+import { ZONING_LABELS, translate } from "../../lib/propertyLabels";
 
 export default function LandConstructionSlide({ data }) {
     const zoningLabel = translate(

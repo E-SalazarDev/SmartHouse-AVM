@@ -7,8 +7,8 @@ import {
     Flame,
 } from "lucide-react";
 
-import SectionTitle from "./SectionTitle";
-import FeatureCard from "./FeatureCard";
+import SectionTitle from "../ui/SectionTitle";
+import FeatureCard from "../ui/FeatureCard";
 
 export default function MainFeaturesSlide({ data }) {
     const features = [

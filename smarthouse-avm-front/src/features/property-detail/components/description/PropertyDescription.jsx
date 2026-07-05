@@ -1,4 +1,4 @@
-import SectionTitle from "./SectionTitle";
+import SectionTitle from "../ui/SectionTitle";
 
 export default function PropertyDescription({ description }) {
     return (
