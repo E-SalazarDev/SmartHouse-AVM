@@ -6,6 +6,7 @@ from django.db.models import Avg
 
 from predictions.models import PredictionRequest
 from predictions.ml_model import predict_house_price
+from .filters import apply_property_filters
 from predictions.serializers import PredictionHistorySerializer
 
 from .models import Property
@@ -24,7 +25,14 @@ class PropertyListView(APIView):
 
         properties = Property.objects.filter(
             is_active=True
-        ).order_by("-created_at")
+        )
+
+        properties = apply_property_filters(
+            queryset=properties,
+            query_params=request.query_params
+        )
+
+        properties = properties.order_by("-created_at")
 
         paginator = PropertyPagination()
 
@@ -41,7 +49,6 @@ class PropertyListView(APIView):
         return paginator.get_paginated_response(
             serializer.data
         )
-
     # POST /api/properties/
     # Crea una nueva propiedad desde el JSON enviado.
     def post(self, request):
