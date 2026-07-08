@@ -1,9 +1,15 @@
 import { Building2 } from "lucide-react";
+
 import Card from "../../../components/ui/Card";
 import PageTitle from "../../../components/ui/PageTitle";
-import { homeFilters } from "../constants/homeFilters";
+import { quickPropertyFilters } from "../constants/homeFilters";
 
-export default function HomeExploreHeader() {
+export default function PropertyExploreHeader({
+    totalProperties = 0,
+    activeQuickFilter,
+    onQuickFilterChange,
+    onClearFilters,
+}) {
     return (
         <Card className="rounded-4xl border border-white/70 bg-white/80 p-0 shadow-[0_24px_70px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl overflow-hidden">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between p-6">
@@ -21,7 +27,7 @@ export default function HomeExploreHeader() {
                             />
 
                             <span className="px-3 py-1 rounded-full bg-indigo-50 text-xs font-bold text-indigo-600 border border-indigo-100">
-                                24 propiedades
+                                {totalProperties} propiedades
                             </span>
                         </div>
 
@@ -33,15 +39,24 @@ export default function HomeExploreHeader() {
                 </div>
 
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
-                    <button className="shrink-0 px-4 py-2 rounded-full text-xs font-bold bg-slate-950 text-white shadow-sm">
+                    <button
+                        onClick={onClearFilters}
+                        className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold ${
+                            activeQuickFilter === "Todas"
+                                ? "bg-slate-950 text-white shadow-sm"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
+                        }`}
+                    >
                         Todas
                     </button>
 
-                    {homeFilters.map((filter) => (
+                    {quickPropertyFilters.map((filter) => (
                         <FilterButton
                             key={filter.label}
                             icon={filter.icon}
                             label={filter.label}
+                            isActive={activeQuickFilter === filter.label}
+                            onClick={() => onQuickFilterChange(filter)}
                         />
                     ))}
                 </div>
@@ -50,9 +65,16 @@ export default function HomeExploreHeader() {
     );
 }
 
-function FilterButton({ icon: Icon, label }) {
+function FilterButton({ icon: Icon, label, isActive, onClick }) {
     return (
-        <button className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+        <button
+            onClick={onClick}
+            className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold ${
+                isActive
+                    ? "bg-slate-950 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 transition"
+            }`}
+        >
             <Icon className="w-3.5 h-3.5" />
             {label}
         </button>
