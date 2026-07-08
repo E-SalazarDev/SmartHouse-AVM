@@ -9,12 +9,69 @@ import { getProperties } from "./api/propertiesApi";
 import PageTitle from "../../components/ui/PageTitle";
 import PropertyCardSkeleton from "./components/PropertyCardSkeleton";
 import SectionHeader from "./components/SectionHeader";
-import { useQuery } from "@tanstack/react-query";
-
+import FloatingPagination from "./components/FloatingPagination";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import PropertyExploreHeader from "./components/PropertyExploreHeader";
 
 export default function Properties() {
     const navigate = useNavigate();
+    const [page, setPage] = useState(1)
+    const [activeQuickFilter, setActiveQuickFilter] = useState("Todas");
+    const [filters, setFilters] = useState({
+        search: "",
+        neighborhood: "",
+        ms_zoning: "",
+        min_quality: "",
+        max_quality: "",
+        min_area: "",
+        max_area: "",
+        garage_cars: "",
+        bedrooms: "",
+        full_bath: "",
+        year_built_min: "",
+        year_built_max: "",
+    });
 
+    function handleQuickFilterChange(filter) {
+        setPage(1);
+        setActiveQuickFilter(filter.label);
+
+        setFilters((previousFilters) => ({
+            ...previousFilters,
+            ...filter.filters,
+        }));
+    }
+
+    function handleClearFilters() {
+        setPage(1);
+        setActiveQuickFilter("Todas");
+
+        setFilters({
+            search: "",
+            neighborhood: "",
+            ms_zoning: "",
+            min_quality: "",
+            max_quality: "",
+            min_area: "",
+            max_area: "",
+            garage_cars: "",
+            bedrooms: "",
+            full_bath: "",
+            year_built_min: "",
+            year_built_max: "",
+        });
+    }
+
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        const nextPage = page + 1
+
+        queryClient.prefetchQuery({
+            queryKey: ["properties", nextPage, filters],
+            queryFn: () => getProperties(nextPage, filters)
+
+        })
+    }, [page, filters, queryClient])
 
     const {
         data: dataProperties = [],
@@ -23,8 +80,8 @@ export default function Properties() {
         isError,
         error,
     } = useQuery({
-        queryKey: ["properties"],
-        queryFn: getProperties,
+        queryKey: ["properties", page, filters],
+        queryFn: () => getProperties(page, filters),
         staleTime: 1000 * 60 * 5,
         gcTime: 1000 * 60 * 10,
         refetchOnWindowFocus: false,
@@ -39,7 +96,8 @@ export default function Properties() {
     if (isLoading) {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
-                <SectionHeader />
+                {/* <SectionHeader /> */}
+                <PropertyExploreHeader />
                 <Grid className="grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-10">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <PropertyCardSkeleton key={i} />
@@ -53,7 +111,8 @@ export default function Properties() {
     if (isError) {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
-                <SectionHeader />
+                {/* <SectionHeader /> */}
+                <PropertyExploreHeader />
                 <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white py-16 px-6 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
                         <AlertTriangle className="w-6 h-6 text-red-500" strokeWidth={2} />
@@ -82,17 +141,32 @@ export default function Properties() {
 
     return (
         <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
-            <SectionHeader />
+            {/* <SectionHeader /> */}
+            <PropertyExploreHeader
+                totalProperties={dataProperties?.count ?? 0}
+                activeQuickFilter={activeQuickFilter}
+                onQuickFilterChange={handleQuickFilterChange}
+                onClearFilters={handleClearFilters}
+            />
 
             <Grid className="grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-10">
-                {dataProperties.map((property) => (
+                {dataProperties?.results?.map((property) => (
                     <PropertyCard
                         key={property.id}
                         property={property}
-                        onClick={()=>propertyDetail(property.id)}
+                        onClick={() => propertyDetail(property.id)}
                     />
                 ))}
             </Grid>
+
+            <FloatingPagination
+                page={dataProperties?.current_page ?? page}
+                totalPages={dataProperties?.total_pages ?? 1}
+                disabledPrevious={!dataProperties?.previous}
+                disabledNext={!dataProperties?.next}
+                onClickPrevious={() => setPage((previousValue) => previousValue - 1)}
+                onClickNext={() => setPage((nextValue) => nextValue + 1)}
+            />
         </div>
     );
 }
