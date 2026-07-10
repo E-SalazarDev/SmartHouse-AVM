@@ -16,7 +16,6 @@ export async function getProperties(pageNum, filters = {}) {
     return response.data;
 }
 
-
 export async function getPropertyPredictions(propertyId) {
     const response = await apiClient.get(`/properties/${propertyId}/predictions/`);
     return response.data;
@@ -24,5 +23,11 @@ export async function getPropertyPredictions(propertyId) {
 
 export async function getPropertyStats() {
     const response = await apiClient.get("/properties/stats/");
+    return response.data;
+}
+
+
+export async function getPropertyFilterOptions() {
+    const response = await apiClient.get("/properties/filter-options/");
     return response.data;
 }
