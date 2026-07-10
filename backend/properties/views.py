@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from django.db.models import Avg
+from django.db.models import Avg, Min, Max
 
 from predictions.models import PredictionRequest
 from predictions.ml_model import predict_house_price
@@ -279,6 +279,114 @@ class PropertyStatsView(APIView):
                     average_predicted_price or 0,
                     2
                 )
+            },
+            status=status.HTTP_200_OK
+        )
+        
+        
+class PropertyFilterOptionsView(APIView):
+
+    # GET /api/properties/filter-options/
+    # Devuelve las opciones reales disponibles para construir filtros en frontend.
+    def get(self, request):
+
+        properties = Property.objects.filter(
+            is_active=True
+        )
+
+        neighborhoods = properties.values_list(
+            "neighborhood",
+            flat=True
+        ).distinct().order_by("neighborhood")
+
+        ms_zonings = properties.values_list(
+            "ms_zoning",
+            flat=True
+        ).distinct().order_by("ms_zoning")
+
+        garage_cars = properties.values_list(
+            "garage_cars",
+            flat=True
+        ).distinct().order_by("garage_cars")
+
+        bedrooms = properties.values_list(
+            "bedroom_abv_gr",
+            flat=True
+        ).distinct().order_by("bedroom_abv_gr")
+
+        full_baths = properties.values_list(
+            "full_bath",
+            flat=True
+        ).distinct().order_by("full_bath")
+
+        qualities = properties.values_list(
+            "overall_qual",
+            flat=True
+        ).distinct().order_by("overall_qual")
+
+        ranges = properties.aggregate(
+            min_area=Min("gr_liv_area"),
+            max_area=Max("gr_liv_area"),
+            min_year_built=Min("year_built"),
+            max_year_built=Max("year_built"),
+        )
+
+        return Response(
+            {
+                "neighborhoods": list(neighborhoods),
+                "ms_zonings": list(ms_zonings),
+                "garage_cars": list(garage_cars),
+                "bedrooms": list(bedrooms),
+                "full_baths": list(full_baths),
+                "qualities": list(qualities),
+                "ranges": ranges,
+                "quality_groups": [
+                    {
+                        "label": "Baja",
+                        "min_quality": 1,
+                        "max_quality": 3,
+                    },
+                    {
+                        "label": "Media",
+                        "min_quality": 4,
+                        "max_quality": 6,
+                    },
+                    {
+                        "label": "Alta",
+                        "min_quality": 7,
+                        "max_quality": 8,
+                    },
+                    {
+                        "label": "Lujo",
+                        "min_quality": 9,
+                        "max_quality": 10,
+                    },
+                ],
+                "year_groups": [
+                    {
+                        "label": "Históricas / antiguas",
+                        "year_built_max": 1949,
+                    },
+                    {
+                        "label": "Clásicas",
+                        "year_built_min": 1950,
+                        "year_built_max": 1979,
+                    },
+                    {
+                        "label": "Modernizadas",
+                        "year_built_min": 1980,
+                        "year_built_max": 1999,
+                    },
+                    {
+                        "label": "Modernas",
+                        "year_built_min": 2000,
+                        "year_built_max": 2015,
+                    },
+                    {
+                        "label": "Recientes",
+                        "year_built_min": 2016,
+                    },
+                ],
             },
             status=status.HTTP_200_OK
         )

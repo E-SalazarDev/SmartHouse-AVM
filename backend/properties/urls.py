@@ -6,11 +6,13 @@ from .views import (
     PropertyPredictionView,
     PropertyPredictionsHistoryView,
     PropertyStatsView,
+    PropertyFilterOptionsView,
 )
 
 
 urlpatterns = [
     path("stats/", PropertyStatsView.as_view(), name="property-stats"),
+    path("filter-options/", PropertyFilterOptionsView.as_view(), name="property-filter-options"),
     path("", PropertyListView.as_view(), name="property-list"),
     path("<int:property_id>/", PropertyDetailView.as_view(), name="property-detail"),
     path("<int:property_id>/predict/", PropertyPredictionView.as_view(), name="property-predict"),
