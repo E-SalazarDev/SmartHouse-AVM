@@ -16,7 +16,7 @@ import PropertyExploreHeader from "./components/PropertyExploreHeader";
 export default function Properties() {
     const navigate = useNavigate();
     const [page, setPage] = useState(1)
-    const [activeQuickFilter, setActiveQuickFilter] = useState("Todas");
+
     const [filters, setFilters] = useState({
         search: "",
         neighborhood: "",
@@ -26,25 +26,24 @@ export default function Properties() {
         min_area: "",
         max_area: "",
         garage_cars: "",
-        bedrooms: "",
-        full_bath: "",
+        min_garage_cars: "",
+        min_bedrooms: "",
+        min_full_bath: "",
         year_built_min: "",
         year_built_max: "",
     });
 
-    function handleQuickFilterChange(filter) {
+    function handleFilterChange(name, value) {
         setPage(1);
-        setActiveQuickFilter(filter.label);
 
         setFilters((previousFilters) => ({
             ...previousFilters,
-            ...filter.filters,
+            [name]: value,
         }));
     }
 
     function handleClearFilters() {
         setPage(1);
-        setActiveQuickFilter("Todas");
 
         setFilters({
             search: "",
@@ -55,8 +54,9 @@ export default function Properties() {
             min_area: "",
             max_area: "",
             garage_cars: "",
-            bedrooms: "",
-            full_bath: "",
+            min_garage_cars: "",
+            min_bedrooms: "",
+            min_full_bath: "",
             year_built_min: "",
             year_built_max: "",
         });
@@ -97,7 +97,12 @@ export default function Properties() {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
                 {/* <SectionHeader /> */}
-                <PropertyExploreHeader />
+                <PropertyExploreHeader
+                    totalProperties={0}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onClearFilters={handleClearFilters}
+                />
                 <Grid className="grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-10">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <PropertyCardSkeleton key={i} />
@@ -112,7 +117,12 @@ export default function Properties() {
         return (
             <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
                 {/* <SectionHeader /> */}
-                <PropertyExploreHeader />
+                <PropertyExploreHeader
+                    totalProperties={0}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onClearFilters={handleClearFilters}
+                />
                 <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white py-16 px-6 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
                         <AlertTriangle className="w-6 h-6 text-red-500" strokeWidth={2} />
@@ -144,8 +154,8 @@ export default function Properties() {
             {/* <SectionHeader /> */}
             <PropertyExploreHeader
                 totalProperties={dataProperties?.count ?? 0}
-                activeQuickFilter={activeQuickFilter}
-                onQuickFilterChange={handleQuickFilterChange}
+                filters={filters}
+                onFilterChange={handleFilterChange}
                 onClearFilters={handleClearFilters}
             />
 
