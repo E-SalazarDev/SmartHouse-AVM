@@ -1,33 +1,79 @@
 import { apiClient } from "../../../api/apiClient";
 
-export async function getProperties(pageNum, filters = {}) {
+
+export async function getProperties(
+    pageNum = 1,
+    filters = {}
+) {
     const params = new URLSearchParams();
 
-    params.append("page", pageNum);
+    params.set(
+        "page",
+        String(pageNum)
+    );
 
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
-            params.append(key, value);
+    Object.entries(filters).forEach(
+        ([key, value]) => {
+            const isFrontendOnlyFilter =
+                key.endsWith("_preset");
+
+            if (isFrontendOnlyFilter) {
+                return;
+            }
+
+            if (
+                value === "" ||
+                value === null ||
+                value === undefined
+            ) {
+                return;
+            }
+
+            params.set(
+                key,
+                String(value)
+            );
         }
-    });
+    );
 
-    const response = await apiClient.get(`/properties/?${params.toString()}`);
+    const response = await apiClient.get(
+        `/properties/?${params.toString()}`
+    );
 
     return response.data;
 }
 
-export async function getPropertyPredictions(propertyId) {
-    const response = await apiClient.get(`/properties/${propertyId}/predictions/`);
+
+export async function getPropertyPredictions(
+    propertyId
+) {
+    if (!propertyId) {
+        throw new Error(
+            "Se requiere el ID de la propiedad."
+        );
+    }
+
+    const response = await apiClient.get(
+        `/properties/${propertyId}/predictions/`
+    );
+
     return response.data;
 }
+
 
 export async function getPropertyStats() {
-    const response = await apiClient.get("/properties/stats/");
+    const response = await apiClient.get(
+        "/properties/stats/"
+    );
+
     return response.data;
 }
 
 
 export async function getPropertyFilterOptions() {
-    const response = await apiClient.get("/properties/filter-options/");
+    const response = await apiClient.get(
+        "/properties/filter-options/"
+    );
+
     return response.data;
 }
