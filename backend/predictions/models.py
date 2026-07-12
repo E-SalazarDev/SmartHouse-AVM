@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from  properties.models import Property
 
@@ -22,12 +23,19 @@ class PredictionRequest(models.Model):
     r2 = models.FloatField( null=True, blank=True)
     
     property = models.ForeignKey(
-    Property,
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    related_name="predictions"
-)
+      Property,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      related_name="predictions"
+    )
+    user = models.ForeignKey(
+      settings.AUTH_USER_MODEL,
+      on_delete=models.SET_NULL,
+      null=True,
+      blank=True,
+      related_name="predictions",
+    )
     
     def __str__(self):
         return f"Prediction {self.id} - ${self.predicted_price}"
