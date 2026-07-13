@@ -1,12 +1,28 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAdminUser,
+)
 
 from .models import PredictionRequest
 from .ml_model import predict_house_price
-from .serializers import (PredictionHistorySerializer, PredictionDetailSerializer)
+from .serializers import (
+    PredictionHistorySerializer,
+    PredictionDetailSerializer,
+)
+
 
 class HousePricePredictionView(APIView):
+    """
+    Endpoint técnico.
+
+    Recibe directamente todas las características del modelo.
+    Solo un administrador debe utilizarlo.
+    """
+
+    permission_classes = [IsAdminUser]
 
     def post(self, request):
 
@@ -18,8 +34,9 @@ class HousePricePredictionView(APIView):
             )
 
             prediction = PredictionRequest.objects.create(
+                user=request.user,
                 input_data=input_data,
-                predicted_price=predicted_price
+                predicted_price=predicted_price,
             )
 
             return Response(
@@ -28,9 +45,9 @@ class HousePricePredictionView(APIView):
                     "predicted_price": round(
                         predicted_price,
                         2
-                    )
+                    ),
                 },
-                status=status.HTTP_201_CREATED
+                status=status.HTTP_201_CREATED,
             )
 
         except Exception as error:
@@ -38,15 +55,29 @@ class HousePricePredictionView(APIView):
                 {
                     "error": str(error)
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
 
 class PredictionHistoryView(APIView):
+    """
+    Usuario normal:
+    Ve solamente sus valuaciones.
+
+    Administrador:
+    Puede ver todas las valuaciones.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
 
-        predictions = PredictionRequest.objects.all()
+        if request.user.is_staff:
+            predictions = PredictionRequest.objects.all()
+        else:
+            predictions = PredictionRequest.objects.filter(
+                user=request.user
+            )
 
         min_price = request.query_params.get("min_price")
         max_price = request.query_params.get("max_price")
@@ -54,13 +85,11 @@ class PredictionHistoryView(APIView):
 
         if min_price:
             predictions = predictions.filter(
-                # Mayor o igual.
                 predicted_price__gte=min_price
             )
 
         if max_price:
             predictions = predictions.filter(
-                # Menor o igual.
                 predicted_price__lte=max_price
             )
 
@@ -85,13 +114,28 @@ class PredictionHistoryView(APIView):
 
 
 class PredictionDetailView(APIView):
+    """
+    Usuario normal:
+    Solo puede abrir una predicción propia.
+
+    Administrador:
+    Puede abrir cualquier predicción.
+    """
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, prediction_id):
 
         try:
-            prediction = PredictionRequest.objects.get(
-                id=prediction_id
-            )
+            if request.user.is_staff:
+                prediction = PredictionRequest.objects.get(
+                    id=prediction_id
+                )
+            else:
+                prediction = PredictionRequest.objects.get(
+                    id=prediction_id,
+                    user=request.user,
+                )
 
             serializer = PredictionDetailSerializer(
                 prediction
