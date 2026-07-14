@@ -7,14 +7,26 @@ from .models import Favorite
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    property_id = serializers.PrimaryKeyRelatedField(
-        queryset=Property.objects.filter(is_active=True),
-        source="property",
-        write_only=True,
-    )
+    """
+    Serializer para listar y crear favoritos.
+
+    En lectura:
+    devuelve los datos resumidos de la propiedad.
+
+    En escritura:
+    recibe únicamente property_id.
+    """
 
     property = PropertyListSerializer(
-        read_only=True
+        read_only=True,
+    )
+
+    property_id = serializers.PrimaryKeyRelatedField(
+        queryset=Property.objects.filter(
+            is_active=True,
+        ),
+        source="property",
+        write_only=True,
     )
 
     class Meta:
@@ -22,8 +34,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
         fields = (
             "id",
-            "property_id",
             "property",
+            "property_id",
             "created_at",
         )
 
@@ -34,22 +46,54 @@ class FavoriteSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attributes):
+        """
+        Impide que un usuario guarde dos veces
+        la misma propiedad.
+        """
+
         request = self.context.get("request")
         property_obj = attributes.get("property")
 
-        if request and request.user.is_authenticated:
-            favorite_exists = Favorite.objects.filter(
-                user=request.user,
-                property=property_obj,
-            ).exists()
+        if request is None:
+            raise serializers.ValidationError(
+                {
+                    "detail": (
+                        "No se pudo identificar la petición."
+                    )
+                }
+            )
 
-            if favorite_exists:
-                raise serializers.ValidationError(
-                    {
-                        "property_id": (
-                            "This property is already in your favorites."
-                        )
-                    }
-                )
+        if not request.user.is_authenticated:
+            raise serializers.ValidationError(
+                {
+                    "detail": (
+                        "Debes iniciar sesión para guardar favoritos."
+                    )
+                }
+            )
+
+        if property_obj is None:
+            raise serializers.ValidationError(
+                {
+                    "property_id": (
+                        "Debes seleccionar una propiedad válida."
+                    )
+                }
+            )
+
+        favorite_exists = Favorite.objects.filter(
+            user=request.user,
+            property=property_obj,
+        ).exists()
+
+        if favorite_exists:
+            raise serializers.ValidationError(
+                {
+                    "property_id": (
+                        "Esta propiedad ya está guardada "
+                        "en tus favoritos."
+                    )
+                }
+            )
 
         return attributes
