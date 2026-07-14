@@ -8,28 +8,36 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="favorites"
+        related_name="favorites",
     )
 
     property = models.ForeignKey(
         Property,
         on_delete=models.CASCADE,
-        related_name="favorites"
+        related_name="favorited_by",
     )
 
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "property"],
-                name="unique_user_property_favorite"
-            )
+                fields=[
+                    "user",
+                    "property",
+                ],
+                name="unique_user_property_favorite",
+            ),
         ]
 
-        ordering = ["-created_at"]
+        ordering = [
+            "-created_at",
+        ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.property.title}"
+        return (
+            f"{self.user.username} - "
+            f"{self.property.title}"
+        )
