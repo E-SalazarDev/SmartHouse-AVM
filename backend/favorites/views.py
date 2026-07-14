@@ -1,13 +1,14 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 
 from .models import Favorite
 from .serializers import FavoriteSerializer
 
 
-class FavoriteListCreateView(generics.ListCreateAPIView):
+class FavoriteListCreateView(
+    generics.ListCreateAPIView
+):
     serializer_class = FavoriteSerializer
     permission_classes = [IsAuthenticated]
 
@@ -25,7 +26,10 @@ class FavoriteListCreateView(generics.ListCreateAPIView):
         )
 
 
-class FavoriteDeleteView(generics.DestroyAPIView):
+class FavoriteDeleteView(
+    generics.DestroyAPIView
+):
+    serializer_class = FavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -39,7 +43,10 @@ class FavoriteDeleteView(generics.DestroyAPIView):
 
         return Response(
             {
-                "message": "Favorite removed successfully"
+                "message": (
+                    "La propiedad fue eliminada "
+                    "de tus favoritos."
+                )
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
