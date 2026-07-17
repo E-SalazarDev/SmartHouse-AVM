@@ -1,7 +1,7 @@
 export default function SectionTitle({ children }) {
     return (
-        <p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
+        <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-500/90 sm:text-sm">
             {children}
-        </p>
+        </h3>
     );
 }
