@@ -1,19 +1,27 @@
 import { createBrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/Home/Home";
 import DashboardPage from "../pages/Dashboard/Dashboard";
 import PropertiesPage from "../pages/Properties/Properties";
 import PropertyDetailPage from "../pages/PropertyDetail/PropertyDetail";
+import Favorities from "../features/favorites/favorites";
+import Login from "../features/login/login";
+import AuthProvider from "../features/auth/context/AuthProvider";
+
 
 const queryClient = new QueryClient();
+
+
 export const router = createBrowserRouter([
     {
         path: "/",
+
         element: (
             <QueryClientProvider client={queryClient}>
-                <MainLayout />
+                <AuthProvider>
+                    <MainLayout />
+                </AuthProvider>
             </QueryClientProvider>
         ),
 
@@ -31,6 +39,14 @@ export const router = createBrowserRouter([
                 element: <DashboardPage />,
             },
             {
+                path: "favoritos",
+                element: <Favorities />,
+            },
+            {
+                path: "login",
+                element: <Login />,
+            },
+            {
                 path: "explorar",
                 children: [
                     {
@@ -39,7 +55,9 @@ export const router = createBrowserRouter([
                     },
                     {
                         path: ":propertyId",
-                        element: <PropertyDetailPage />,
+                        element: (
+                            <PropertyDetailPage />
+                        ),
                     },
                 ],
             },
