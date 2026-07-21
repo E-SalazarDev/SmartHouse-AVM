@@ -8,7 +8,8 @@ import PropertyDetailPage from "../pages/PropertyDetail/PropertyDetail";
 import Favorities from "../features/favorites/favorites";
 import Login from "../features/login/login";
 import AuthProvider from "../features/auth/context/AuthProvider";
-
+import ProtectedRoute from "../features/auth/components/ProtectedRoute";
+import Register from "../features/register/register";
 
 const queryClient = new QueryClient();
 
@@ -40,11 +41,19 @@ export const router = createBrowserRouter([
             },
             {
                 path: "favoritos",
-                element: <Favorities />,
+                element: (
+                    <ProtectedRoute>
+                        <Favorities />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: "login",
                 element: <Login />,
+            },
+            {
+                path: "registro",
+                element: <Register />,
             },
             {
                 path: "explorar",
