@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { navItems } from "./navItems";
 
-export default function Nav() {
+const Nav = forwardRef(function Nav(_props, ref) {
     const location = useLocation();
     const [hovered, setHovered] = useState(null);
 
     return (
         <nav className="hidden md:flex flex-1 items-center justify-center px-2">
-            <div className="flex items-center gap-0.5 rounded-full border border-white/8 bg-white/4 p-1.5">
+            <div
+                ref={ref}
+                className="flex items-center gap-0.5 rounded-full border border-white/8 bg-white/4 p-1.5"
+            >
                 {navItems.map(({ icon: Icon, label, uri }, index) => {
                     const isActive = location.pathname === uri;
                     const isHovered = hovered === index;
@@ -73,4 +76,6 @@ export default function Nav() {
             </div>
         </nav>
     );
-}
+});
+
+export default Nav;
