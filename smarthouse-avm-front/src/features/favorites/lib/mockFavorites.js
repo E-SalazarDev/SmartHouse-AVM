@@ -1,0 +1,47 @@
+export const MOCK_FAVORITES = [
+    {
+        id: 1,
+        title: "Casa residencial en Sawyer",
+        badge: "Residencial",
+        neighborhood: "Sawyer",
+        year: 1966,
+        area: 89,
+        beds: 3,
+        baths: 1,
+        garage: 1,
+        condition: "Buen estado",
+        quality: 5,
+        image:
+            "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&auto=format&fit=crop&q=60",
+    },
+    {
+        id: 2,
+        title: "Vivienda clásica en OldTown",
+        badge: "Residencial media",
+        neighborhood: "OldTown",
+        year: 1920,
+        area: 135,
+        beds: 2,
+        baths: 2,
+        garage: 0,
+        condition: "Estado estándar",
+        quality: 4,
+        image:
+            "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&auto=format&fit=crop&q=60",
+    },
+    {
+        id: 3,
+        title: "Casa moderna en Somerst",
+        badge: "Villa residencial",
+        neighborhood: "Somerst",
+        year: 2006,
+        area: 154,
+        beds: 3,
+        baths: 2,
+        garage: 3,
+        condition: "Muy buen estado",
+        quality: 8,
+        image:
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=60",
+    },
+];
