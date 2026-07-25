@@ -5,11 +5,12 @@ import HomePage from "../pages/Home/Home";
 import DashboardPage from "../pages/Dashboard/Dashboard";
 import PropertiesPage from "../pages/Properties/Properties";
 import PropertyDetailPage from "../pages/PropertyDetail/PropertyDetail";
-import Favorities from "../features/favorites/favorites";
-import Login from "../features/login/login";
+import Favorities from "../features/favorites/Favorites";
+import LoginPage from "../pages/Login/Login";
 import AuthProvider from "../features/auth/context/AuthProvider";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
-import Register from "../features/register/register";
+import RegisterPage from "../pages/Register/Register";
+import ComparisonPage from "../pages/Comparison/Comparison";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
                 element: <DashboardPage />,
             },
             {
+                path: "comparador",
+                element: <ComparisonPage />,
+            },
+            {
                 path: "favoritos",
                 element: (
                     <ProtectedRoute>
@@ -49,11 +54,11 @@ export const router = createBrowserRouter([
             },
             {
                 path: "login",
-                element: <Login />,
+                element: <LoginPage />,
             },
             {
                 path: "registro",
-                element: <Register />,
+                element: <RegisterPage />,
             },
             {
                 path: "explorar",
