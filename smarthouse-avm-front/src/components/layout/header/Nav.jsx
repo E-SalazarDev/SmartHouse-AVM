@@ -1,10 +1,12 @@
 import { forwardRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import useAuth from "../../../features/auth/hooks/useAuth";
 import { navItems } from "./navItems";
 
 const Nav = forwardRef(function Nav(_props, ref) {
+    const { isAuthenticated } = useAuth();
+    const visibleItems = navItems.filter((item) => !item.requiresAuth || isAuthenticated);
     const location = useLocation();
     const [hovered, setHovered] = useState(null);
 
