@@ -13,34 +13,34 @@ export default function FloatingPagination({
         <div className="pointer-events-none sticky bottom-8 z-40 flex w-full justify-center">
             <motion.div
                 layout
-                className="pointer-events-auto inline-flex items-center gap-3
+                className="pointer-events-auto inline-flex items-center gap-5
                     rounded-2xl
-                    border border-white/30
-                    bg-slate-900/75
-                    px-3 py-2.5
-                    shadow-[0_8px_32px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.12)]
-                    backdrop-blur-xl"
+                    border border-white/10
+                    bg-slate-950/85
+                    px-4 py-3
+                    shadow-[0_20px_50px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.05)]
+                    backdrop-blur-2xl transition-all duration-300"
             >
-                {/* Prev */}
+                {/* Botón Anterior */}
                 <motion.button
                     disabled={disabledPrevious}
                     type="button"
                     onClick={onClickPrevious}
-                    whileHover={!disabledPrevious ? { scale: 1.06 } : {}}
-                    whileTap={!disabledPrevious ? { scale: 0.93 } : {}}
-                    transition={{ type: "spring", stiffness: 420, damping: 22 }}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl
+                    whileHover={!disabledPrevious ? { scale: 1.05, y: -1 } : {}}
+                    whileTap={!disabledPrevious ? { scale: 0.95 } : {}}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl
                         bg-linear-to-br from-violet-500 to-fuchsia-500 text-white
-                        ring-1 ring-white/15
-                        transition-colors duration-150
-                        hover:bg-white/20 hover:text-white
-                        disabled:cursor-not-allowed disabled:opacity-30"
+                        shadow-lg shadow-violet-500/20
+                        ring-1 ring-white/20
+                        transition-all duration-150
+                        disabled:cursor-not-allowed disabled:opacity-20 disabled:shadow-none disabled:bg-none disabled:border disabled:border-white/10"
                 >
-                    <ChevronLeft className="h-4.5 w-4.5" />
+                    <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
                 </motion.button>
 
-                {/* Dots */}
-                <div className="flex items-center gap-1.25 px-1">
+                {/* Contenedor de Indicadores */}
+                <div className="flex items-center gap-2 px-1">
                     {Array.from({ length: totalPages }).map((_, index) => {
                         const dotPage = index + 1;
                         const active = dotPage === page;
@@ -50,63 +50,62 @@ export default function FloatingPagination({
                                 key={dotPage}
                                 layout
                                 animate={{
-                                    width: active ? 26 : 7,
-                                    opacity: active ? 1 : visited ? 0.75 : 0.3,
+                                    width: active ? 32 : 8,
+                                    opacity: active ? 1 : visited ? 0.7 : 0.25,
                                 }}
-                                transition={{ type: "spring", stiffness: 340, damping: 28 }}
-                                className={`block h-1.75 rounded-full ${
+                                transition={{ type: "spring", stiffness: 360, damping: 26 }}
+                                className={`block h-2 rounded-full ${
                                     active
-                                        ? "bg-linear-to-r from-violet-400 to-fuchsia-400"
+                                        ? "bg-linear-to-r from-violet-400 to-fuchsia-400 shadow-sm shadow-fuchsia-500/50"
                                         : visited
                                         ? "bg-violet-400"
                                         : "bg-white"
                                 }`}
-                                style={{ minWidth: active ? 26 : 7 }}
+                                style={{ minWidth: active ? 32 : 8 }}
                             />
                         );
                     })}
                 </div>
 
-                {/* Divider */}
-                <div className="h-5 w-px bg-white/15" />
+                {/* Divisor */}
+                <div className="h-6 w-px bg-white/10" />
 
-                {/* Counter — fondo propio  */}
-                <div className="flex items-center gap-0.75 rounded-lg bg-white/10 px-3 py-1 ring-1 ring-white/10">
+                {/* Contador de Páginas Numérico */}
+                <div className="flex items-center gap-1 rounded-xl bg-white/5 px-4 py-1.5 ring-1 ring-white/10 min-w-17.5 justify-center">
                     <AnimatePresence mode="wait">
                         <motion.span
                             key={page}
-                            initial={{ opacity: 0, y: 4 }}
+                            initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            transition={{ duration: 0.13 }}
-                            className="text-[13px] font-black tabular-nums text-white"
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className="text-[14px] font-black tabular-nums text-white"
                         >
                             {page}
                         </motion.span>
                     </AnimatePresence>
-                    <span className="text-[13px] font-medium text-white/40">/</span>
-                    <span className="text-[13px] font-medium tabular-nums text-white/60">
+                    <span className="text-[14px] font-semibold text-white/30">/</span>
+                    <span className="text-[14px] font-bold tabular-nums text-white/60">
                         {totalPages}
                     </span>
                 </div>
 
-                {/* Next */}
+                {/* Botón Siguiente  */}
                 <motion.button
                     disabled={disabledNext}
                     type="button"
                     onClick={onClickNext}
-                    whileHover={!disabledNext ? { scale: 1.06 } : {}}
-                    whileTap={!disabledNext ? { scale: 0.93 } : {}}
-                    transition={{ type: "spring", stiffness: 420, damping: 22 }}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl
+                    whileHover={!disabledNext ? { scale: 1.05, y: -1 } : {}}
+                    whileTap={!disabledNext ? { scale: 0.95 } : {}}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl
                         bg-linear-to-br from-violet-500 to-fuchsia-500 text-white
-                        shadow-[0_4px_14px_rgba(139,92,246,0.45)]
-                        ring-1 ring-white/15
+                        shadow-lg shadow-violet-500/20
+                        ring-1 ring-white/20
                         transition-all duration-150
-                        hover:shadow-[0_4px_20px_rgba(139,92,246,0.65)]
-                        disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none"
+                        disabled:cursor-not-allowed disabled:opacity-20 disabled:shadow-none disabled:bg-none disabled:border disabled:border-white/10"
                 >
-                    <ChevronRight className="h-4.5 w-4.5" />
+                    <ChevronRight className="h-5 w-5 stroke-[2.5]" />
                 </motion.button>
             </motion.div>
         </div>
