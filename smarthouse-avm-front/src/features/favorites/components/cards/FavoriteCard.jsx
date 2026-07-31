@@ -24,7 +24,7 @@ export default function FavoriteCard({ property, onRemove, onCompareToggle, isCo
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="group rounded-3xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/60 transition-shadow"
         >
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="relative aspect-4/3 overflow-hidden">
                 <img
                     src={property.image}
                     alt={property.title}

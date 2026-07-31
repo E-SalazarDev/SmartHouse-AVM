@@ -91,7 +91,7 @@ export default function PropertyDetail() {
                                 <div className="mt-3 flex flex-wrap items-center gap-2">
                                     <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-lg">
                                         <MapPin className="h-4 w-4 text-violet-600" />
-                                        {data.neighborhood}, Ames, Iowa
+                                        {data.neighborhood}
                                     </span>
 
                                     {imageBadges.map(({ icon: Icon, label, value }) => (
