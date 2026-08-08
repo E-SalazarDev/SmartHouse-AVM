@@ -4,7 +4,6 @@ import AiValuationCard from "./components/AiValuationCard";
 import HomeHero from "./components/HomeHero";
 import HomeWorkspace from "./components/HomeWorkspace";
 import HomeModelSummary from "./components/HomeModelSummary";
-import HomeExploreHeader from "./components/HomeExploreHeader";
 import HomePropertyPreview from "./components/HomePropertyPreview";
 
 export default function Home() {
@@ -21,9 +20,6 @@ export default function Home() {
                 <AiValuationCard />
             </Grid>
 
-            <HomeExploreHeader />
-
-            <HomePropertyPreview />
         </div>
     );
 }

@@ -1,14 +1,50 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import useAuth from "../../auth/hooks/useAuth";
 
 export default function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        first_name: "",
+        last_name: "",
+        password: "",
+        password_confirm: "",
+    });
 
-    function handleSubmit(event) {
+    const {
+        register,
+        isRegistering,
+        registerError,
+    } = useAuth();
+
+    const navigate = useNavigate();
+
+
+    async function handleSubmit(event) {
         event.preventDefault();
+
+        try {
+            await register(formData);
+            navigate("/home");
+            console.log("Registro exitoso");
+
+        } catch (error) {
+            console.error("Error al registrar:", error);
+        }
+    }
+
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setFormData((previousData) => ({
+            ...previousData,
+            [name]: value,
+        }))
     }
 
     return (
@@ -58,6 +94,8 @@ export default function RegisterForm() {
                                     id="first_name"
                                     type="text"
                                     name="first_name"
+                                    value={formData.first_name}
+                                    onChange={handleChange}
                                     placeholder="José Eduardo"
                                     autoComplete="given-name"
                                     className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -76,6 +114,8 @@ export default function RegisterForm() {
                                 id="last_name"
                                 type="text"
                                 name="last_name"
+                                value={formData.last_name}
+                                onChange={handleChange}
                                 placeholder="Salazar Tecuapacho"
                                 autoComplete="family-name"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -101,6 +141,8 @@ export default function RegisterForm() {
                                 id="username"
                                 type="text"
                                 name="username"
+                                value={formData.username}
+                                onChange={handleChange}
                                 placeholder="eduardo"
                                 autoComplete="username"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -126,6 +168,8 @@ export default function RegisterForm() {
                                 id="email"
                                 type="email"
                                 name="email"
+                                value={formData.email}
+                                onChange={handleChange}
                                 placeholder="tu@correo.com"
                                 autoComplete="email"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -151,6 +195,8 @@ export default function RegisterForm() {
                                 id="password"
                                 type={showPassword ? "text" : "password"}
                                 name="password"
+                                value={formData.password}
+                                onChange={handleChange}
                                 placeholder="••••••••"
                                 autoComplete="new-password"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-10 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -186,6 +232,8 @@ export default function RegisterForm() {
                                 id="password_confirm"
                                 type={showConfirmPassword ? "text" : "password"}
                                 name="password_confirm"
+                                value={formData.password_confirm}
+                                onChange={handleChange}
                                 placeholder="••••••••"
                                 autoComplete="new-password"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-10 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
@@ -200,11 +248,7 @@ export default function RegisterForm() {
                                 }
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             >
-                                {showConfirmPassword ? (
-                                    <EyeOff size={16} />
-                                ) : (
-                                    <Eye size={16} />
-                                )}
+                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                         </div>
                     </div>
@@ -213,11 +257,19 @@ export default function RegisterForm() {
                     <motion.button
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 17
+                        }}
                         type="submit"
-                        className="w-full rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 py-2.5 text-sm font-medium tracking-normal text-white shadow-sm transition-shadow hover:shadow-md"
+                        disabled={isRegistering}
+                        className="w-full rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 py-2.5 text-sm font-medium tracking-normal text-white shadow-sm transition-shadow hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        Crear cuenta
+                        {isRegistering
+                            ? "Creando cuenta..."
+                            : "Crear cuenta"
+                        }
                     </motion.button>
                 </form>
 

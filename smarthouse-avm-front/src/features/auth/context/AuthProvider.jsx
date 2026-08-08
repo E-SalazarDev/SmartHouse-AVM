@@ -1,6 +1,6 @@
 import {createContext, useEffect, useMemo,} from "react";
 import {useMutation,useQuery, useQueryClient,} from "@tanstack/react-query";
-import { getCurrentUser, loginUser,logoutUser, } from "../../login/api/authApi";
+import { getCurrentUser, loginUser,logoutUser, postRegisterUser } from "../../login/api/authApi";
 import { tokenStorage } from "../../../api/tokenStorage";
 
 
@@ -71,6 +71,24 @@ export default function AuthProvider({
     });
 
 
+    const registerMutation = useMutation({
+        mutationFn: postRegisterUser,
+
+        onSuccess: (authData) => {
+            tokenStorage.setTokens({
+                access: authData.access,
+                refresh:authData.refresh,
+            });
+
+            queryClient.setQueryData(
+                CURRENT_USER_QUERY_KEY,
+                authData.user,
+            )
+        }
+    })
+    
+
+
     //  cerrar sesión
     const logoutMutation = useMutation({
         mutationFn: async () => {
@@ -120,6 +138,12 @@ export default function AuthProvider({
         );
     }
 
+    async function register(userData){
+        return registerMutation.mutateAsync(
+            userData,
+        );
+    }
+
 
     async function logout() {
         return logoutMutation.mutateAsync();
@@ -133,6 +157,7 @@ export default function AuthProvider({
             isLoading,
 
             login,
+            register,
             logout,
 
             isLoggingIn:
@@ -143,6 +168,12 @@ export default function AuthProvider({
 
             isLoggingOut:
                 logoutMutation.isPending,
+
+            isRegistering:
+                registerMutation.isPending,
+
+            registerError:
+                registerMutation.error,        
         }),
         [
             user,
@@ -150,6 +181,8 @@ export default function AuthProvider({
             isLoading,
             loginMutation.isPending,
             loginMutation.error,
+            registerMutation.isPending,
+            registerMutation.error,
             logoutMutation.isPending,
         ],
     );
