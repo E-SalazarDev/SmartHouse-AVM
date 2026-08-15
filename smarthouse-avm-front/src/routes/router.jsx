@@ -12,6 +12,7 @@ import ProtectedRoute from "../features/auth/components/ProtectedRoute";
 import RegisterPage from "../pages/Register/Register";
 import ComparisonPage from "../pages/Comparison/Comparison";
 import AccountPage from "../pages/Account/Account";
+import { ComparisonProvider } from "../features/comparison/context/ComparisonProvider";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,9 @@ export const router = createBrowserRouter([
         element: (
             <QueryClientProvider client={queryClient}>
                 <AuthProvider>
-                    <MainLayout />
+                    <ComparisonProvider>
+                        <MainLayout />
+                    </ComparisonProvider>
                 </AuthProvider>
             </QueryClientProvider>
         ),
