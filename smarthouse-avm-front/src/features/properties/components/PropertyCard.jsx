@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BedDouble,
   Bath,
@@ -9,10 +9,12 @@ import {
   Calendar,
   ArrowRight,
   Heart,
+  Scale,
   Sparkles,
 } from "lucide-react";
 
 import { resolveImageUrl } from "../../../utils/media";
+import { useComparison } from "../../comparison/context/ComparisonProvider";
 
 function sqftToM2(sqft) {
   return Math.round(Number(sqft || 0) * 0.092903);
@@ -46,6 +48,8 @@ function zoningText(zone) {
 export default function PropertyCard({ property, onClick }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [showLimitMessage, setShowLimitMessage] = useState(false);
+  const { isSelected, toggleComparison, isFull } = useComparison();
 
   const {
     title,
@@ -62,6 +66,8 @@ export default function PropertyCard({ property, onClick }) {
 
   const imageUrl = resolveImageUrl(cover_image_url);
   const areaM2 = sqftToM2(gr_liv_area);
+  const isInComparison = isSelected(property.id);
+  const isCompareDisabled = !isInComparison && isFull;
 
   return (
     <motion.article
@@ -95,20 +101,67 @@ export default function PropertyCard({ property, onClick }) {
           {zoningText(ms_zoning)}
         </div>
 
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            setIsLiked((value) => !value);
-          }}
-          className={`absolute right-3 top-3 rounded-full p-2 backdrop-blur-md transition ${
-            isLiked
-              ? "bg-rose-500 text-white"
-              : "bg-white/20 text-white hover:bg-white/35"
-          }`}
-        >
-          <Heart className={`h-4 w-4 ${isLiked ? "fill-white" : ""}`} />
-        </button>
+        <div className="absolute right-3 top-3 flex items-center gap-2">
+          <div className="relative">
+            <AnimatePresence>
+              {showLimitMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 whitespace-nowrap rounded-lg bg-slate-950 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg"
+                >
+                  Máximo 3 propiedades
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                if (isCompareDisabled) {
+                  setShowLimitMessage(true);
+                  setTimeout(() => setShowLimitMessage(false), 2000);
+                  return;
+                }
+                toggleComparison(property.id);
+              }}
+              title={
+                isCompareDisabled
+                  ? "Ya tienes 3 propiedades en comparación"
+                  : isInComparison
+                    ? "Quitar de comparación"
+                    : "Agregar a comparación"
+              }
+              className={`rounded-full p-2 backdrop-blur-md transition ${
+                isInComparison
+                  ? "bg-violet-600 text-white"
+                  : isCompareDisabled
+                    ? "bg-white/10 text-white/40 cursor-not-allowed"
+                    : "bg-white/20 text-white hover:bg-white/35"
+              }`}
+            >
+              <Scale className="h-4 w-4" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsLiked((value) => !value);
+            }}
+            className={`rounded-full p-2 backdrop-blur-md transition ${
+              isLiked
+                ? "bg-rose-500 text-white"
+                : "bg-white/20 text-white hover:bg-white/35"
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${isLiked ? "fill-white" : ""}`} />
+          </button>
+        </div>
 
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
           <div className="min-w-0">
