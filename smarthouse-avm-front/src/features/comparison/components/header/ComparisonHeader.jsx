@@ -7,7 +7,7 @@ export default function ComparisonHeader({ count, onClear }) {
                 <span className="text-xs font-semibold tracking-[0.15em] uppercase text-violet-600/70">
                     Decide con datos
                 </span>
-                <h1 className="mt-2 font-serif text-3xl md:text-4xl text-slate-900">
+                <h1 className="mt-2 text-3xl md:text-4xl font-bold text-slate-950">
                     Comparador
                 </h1>
                 <p className="mt-2 text-sm text-slate-500">
