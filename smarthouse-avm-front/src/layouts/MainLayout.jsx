@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/layout/header/Header";
+import ComparisonFloatingBar from "../features/comparison/components/floating-bar/ComparisonFloatingBar";
 
 export default function MainLayout() {
     return (
@@ -11,6 +12,8 @@ export default function MainLayout() {
                     <Outlet />
                 </div>
             </div>
+
+            <ComparisonFloatingBar />
         </main>
     );
 }
