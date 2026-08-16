@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { X, MapPin } from "lucide-react";
+import { resolveImageUrl } from "../../../../utils/media";
 
 export default function ComparisonCard({ property, onRemove }) {
     return (
@@ -14,7 +15,7 @@ export default function ComparisonCard({ property, onRemove }) {
         >
             <div className="relative aspect-video">
                 <img
-                    src={property.image}
+                    src={resolveImageUrl(property.cover_image_url)}
                     alt={property.title}
                     className="h-full w-full object-cover"
                 />
@@ -36,7 +37,13 @@ export default function ComparisonCard({ property, onRemove }) {
                     {property.neighborhood}
                 </p>
                 <p className="mt-2 font-mono text-base font-semibold text-slate-900">
-                    ${property.price.toLocaleString()}
+                    {property.predicted_price != null
+                        ? new Intl.NumberFormat("es-MX", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                          }).format(property.predicted_price)
+                        : "—"}
                 </p>
             </div>
         </motion.div>
