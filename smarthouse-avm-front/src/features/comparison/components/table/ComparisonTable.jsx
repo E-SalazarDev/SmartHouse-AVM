@@ -1,10 +1,11 @@
+import { Fragment } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { ROWS, bestIndex } from "../../lib/comparisonRows";
 
 export default function ComparisonTable({ properties }) {
     return (
-        <div className="relative mt-6 rounded-2xl border border-slate-100 bg-white overflow-hidden">
+        <div className="relative mt-6 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
             <div className="overflow-x-auto">
                 <div
                     className="grid min-w-140"
@@ -16,7 +17,7 @@ export default function ComparisonTable({ properties }) {
                     {properties.map((p) => (
                         <div
                             key={p.id}
-                            className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900 truncate"
+                            className="border-b border-slate-100 px-4 py-3.5 text-sm font-bold text-slate-950 truncate"
                         >
                             {p.title}
                         </div>
@@ -24,15 +25,21 @@ export default function ComparisonTable({ properties }) {
 
                     {ROWS.map((row, rowIdx) => {
                         const winner = bestIndex(properties, row);
+                        const isLastRow = rowIdx === ROWS.length - 1;
+                        const isEvenRow = rowIdx % 2 === 1;
+
                         return (
-                            <>
+                            <Fragment key={row.key}>
                                 <div
-                                    key={`${row.key}-label`}
-                                    className={`sticky left-0 bg-white flex items-center gap-2 px-4 py-3.5 text-xs font-medium text-slate-500 ${
-                                        rowIdx !== ROWS.length - 1 ? "border-b border-slate-100" : ""
-                                    }`}
+                                    className={`sticky left-0 flex items-center gap-2 px-4 py-3.5 text-xs font-bold text-slate-500 ${
+                                        isEvenRow ? "bg-slate-50/60" : "bg-white"
+                                    } ${!isLastRow ? "border-b border-slate-100" : ""}`}
                                 >
-                                    <row.icon size={13} className="text-slate-400 shrink-0" />
+                                    <row.icon
+                                        size={14}
+                                        className="text-violet-600 shrink-0"
+                                        strokeWidth={2.5}
+                                    />
                                     {row.label}
                                 </div>
                                 {properties.map((p, i) => (
@@ -41,21 +48,23 @@ export default function ComparisonTable({ properties }) {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: rowIdx * 0.03 }}
-                                        className={`flex items-center gap-1.5 px-4 py-3.5 text-sm ${
-                                            rowIdx !== ROWS.length - 1 ? "border-b border-slate-100" : ""
-                                        } ${
-                                            i === winner
-                                                ? "font-semibold text-violet-700"
-                                                : "text-slate-700"
-                                        }`}
+                                        className={`flex items-center px-4 py-3.5 text-sm ${
+                                            isEvenRow ? "bg-slate-50/60" : "bg-white"
+                                        } ${!isLastRow ? "border-b border-slate-100" : ""}`}
                                     >
-                                        {i === winner && (
-                                            <Check size={13} className="text-violet-500 shrink-0" />
+                                        {i === winner ? (
+                                            <span className="inline-flex items-center gap-1 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-600">
+                                                <Check size={12} strokeWidth={2.5} />
+                                                {row.format(p[row.key])}
+                                            </span>
+                                        ) : (
+                                            <span className="text-slate-600">
+                                                {row.format(p[row.key])}
+                                            </span>
                                         )}
-                                        {row.format(p[row.key])}
                                     </motion.div>
                                 ))}
-                            </>
+                            </Fragment>
                         );
                     })}
                 </div>
