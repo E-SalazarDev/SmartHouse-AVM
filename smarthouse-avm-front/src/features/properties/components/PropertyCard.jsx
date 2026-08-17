@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   BedDouble,
   Bath,
@@ -15,6 +16,8 @@ import {
 
 import { resolveImageUrl } from "../../../utils/media";
 import { useComparison } from "../../comparison/context/ComparisonProvider";
+import useFavorites from "../../favorites/hooks/useFavorites";
+import useAuth from "../../auth/hooks/useAuth";
 
 function sqftToM2(sqft) {
   return Math.round(Number(sqft || 0) * 0.092903);
@@ -47,9 +50,12 @@ function zoningText(zone) {
 
 export default function PropertyCard({ property, onClick }) {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [showLimitMessage, setShowLimitMessage] = useState(false);
   const { isSelected, toggleComparison, isFull } = useComparison();
+  const { isFavorited, toggleFavorite } = useFavorites();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     title,
@@ -68,6 +74,18 @@ export default function PropertyCard({ property, onClick }) {
   const areaM2 = sqftToM2(gr_liv_area);
   const isInComparison = isSelected(property.id);
   const isCompareDisabled = !isInComparison && isFull;
+  const isLiked = isFavorited(property.id);
+
+  function handleFavoriteClick(event) {
+    event.stopPropagation();
+
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
+    toggleFavorite(property.id);
+  }
 
   return (
     <motion.article
@@ -149,10 +167,8 @@ export default function PropertyCard({ property, onClick }) {
 
           <button
             type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setIsLiked((value) => !value);
-            }}
+            onClick={handleFavoriteClick}
+            title={isLiked ? "Quitar de favoritos" : "Guardar en favoritos"}
             className={`rounded-full p-2 backdrop-blur-md transition ${
               isLiked
                 ? "bg-rose-500 text-white"
