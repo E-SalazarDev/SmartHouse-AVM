@@ -60,6 +60,9 @@ export default function PropertyExploreHeader({
     onFilterChange = () => {},
     onMultipleFilterChanges = () => {},
     onClearFilters = () => {},
+    title = "Explora propiedades",
+    subtitle = "Encuentra viviendas por ubicación, calidad y superficie",
+    icon: HeaderIcon = Building2,
 }) {
     const categoricalOptions =
         filterOptions?.categorical_options ?? {};
@@ -242,8 +245,8 @@ export default function PropertyExploreHeader({
            
             <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 md:px-6 lg:flex-row lg:items-center">
                 <div className="flex shrink-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-fuchsia-600 shadow-md shadow-violet-600/20">
-                        <Building2 className="h-4.5 w-4.5 text-white" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-fuchsia-600 shadow-md shadow-violet-600/20">
+                        <HeaderIcon className="h-4.5 w-4.5 text-white" />
                     </div>
 
                     <div>
@@ -251,7 +254,7 @@ export default function PropertyExploreHeader({
                             <PageTitle
                                 variant="default"
                                 size="md"
-                                title="Explora propiedades"
+                                title={title}
                             />
 
                             <span className="rounded-full border border-violet-100 bg-violet-50 px-2.5 py-0.5 text-xs font-bold text-violet-700">
@@ -260,8 +263,7 @@ export default function PropertyExploreHeader({
                         </div>
 
                         <p className="text-xs text-slate-400">
-                            Encuentra viviendas por ubicación,
-                            calidad y superficie
+                            {subtitle}
                         </p>
                     </div>
                 </div>
