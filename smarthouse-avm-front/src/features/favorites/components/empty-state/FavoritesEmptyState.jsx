@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export default function FavoritesEmptyState() {
+    const navigate = useNavigate();
     return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center text-center px-4">
             <svg
@@ -43,6 +46,7 @@ export default function FavoritesEmptyState() {
 
             <button
                 type="button"
+                onClick={() => navigate("/explorar")}
                 className="mt-6 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:shadow-md transition-shadow"
             >
                 Explorar propiedades
