@@ -1,80 +1,137 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import FavoritesHeader from "./components/header/FavoritesHeader";
-import FavoriteCard from "./components/cards/FavoriteCard";
-import FavoriteSkeleton from "./components/skeleton/FavoriteSkeleton";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, Heart, Info } from "lucide-react";
+
+import Grid from "../../components/ui/Grid";
+import PropertyCard from "../../features/properties/components/PropertyCard";
+import PropertyCardSkeleton from "../../features/properties/components/PropertyCardSkeleton";
+import PropertyExploreHeader from "../../features/properties/components/PropertyExploreHeader";
 import FavoritesEmptyState from "./components/empty-state/FavoritesEmptyState";
-import CompareToast from "./components/compare-toast/CompareToast";
-import { MOCK_FAVORITES } from "./lib/mockFavorites";
+import useFavorites from "../../features/favorites/hooks/useFavorites";
+import { buildFilterOptions } from "../../features/favorites/lib/buildFilterOptions";
+import { filterFavorites } from "../../features/favorites/lib/filterFavorites";
+
+const MANY_FAVORITES_THRESHOLD = 40;
+
+const initialFilters = {
+    search: "",
+    neighborhood: "",
+    ms_zoning: "",
+
+    quality_preset: "",
+    min_quality: "",
+    max_quality: "",
+
+    area_preset: "",
+    min_area: "",
+    max_area: "",
+
+    year_preset: "",
+    year_built_min: "",
+    year_built_max: "",
+
+    garage_cars: "",
+    min_garage_cars: "",
+    min_bedrooms: "",
+    min_full_bath: "",
+};
 
 export default function Favorites() {
-    const [loading, setLoading] = useState(true);
-    const [favorites, setFavorites] = useState([]);
-    const [comparing, setComparing] = useState([]);
-    const [search, setSearch] = useState("");
+    const navigate = useNavigate();
+    const [filters, setFilters] = useState(initialFilters);
+    const { favorites, isLoading, isError } = useFavorites();
 
-    useEffect(() => {
-        const t = setTimeout(() => {
-            setFavorites(MOCK_FAVORITES);
-            setLoading(false);
-        }, 900);
-        return () => clearTimeout(t);
-    }, []);
+    const properties = favorites.map((f) => f.property);
+    const filterOptions = buildFilterOptions(properties);
+    const filtered = filterFavorites(properties, filters);
 
-    function handleRemove(id) {
-        setFavorites((prev) => prev.filter((p) => p.id !== id));
+    function handleFilterChange(name, value) {
+        setFilters((previous) => ({ ...previous, [name]: value }));
     }
 
-    function handleCompareToggle(id) {
-        setComparing((prev) =>
-            prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-        );
+    function handleMultipleFilterChanges(changes) {
+        setFilters((previous) => ({ ...previous, ...changes }));
     }
 
-    const filtered = favorites.filter((p) =>
-        p.title.toLowerCase().includes(search.toLowerCase())
-    );
+    function handleClearFilters() {
+        setFilters({ ...initialFilters });
+    }
+
+    function openPropertyDetail(propertyId) {
+        navigate(`/explorar/${propertyId}`);
+    }
 
     return (
-        <div className="w-full rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 md:p-6 shadow-xl flex flex-col gap-5">
-            <FavoritesHeader
-                count={favorites.length}
-                loading={loading}
-                search={search}
-                onSearchChange={setSearch}
+        <div className="flex w-full flex-col gap-5 rounded-2xl border border-slate-200 bg-[#f6f7fb] p-4 shadow-xl md:p-6">
+            <PropertyExploreHeader
+                title="Favoritos"
+                subtitle="Las propiedades que has guardado para revisar o comparar"
+                icon={Heart}
+                totalProperties={properties.length}
+                filters={filters}
+                filterOptions={filterOptions}
+                onFilterChange={handleFilterChange}
+                onMultipleFilterChanges={handleMultipleFilterChanges}
+                onClearFilters={handleClearFilters}
             />
 
-            <AnimatePresence>
-                {comparing.length > 0 && (
-                    <CompareToast count={comparing.length} onClear={() => setComparing([])} />
+            {!isLoading &&
+                !isError &&
+                properties.length >= MANY_FAVORITES_THRESHOLD && (
+                    <div className="flex items-center gap-2.5 rounded-2xl border border-violet-100 bg-violet-50/60 px-4 py-3">
+                        <Info className="h-4 w-4 shrink-0 text-violet-500" />
+                        <p className="text-sm text-violet-700">
+                            Tienes {properties.length} propiedades guardadas — usa los filtros arriba para encontrar más rápido lo que buscas.
+                        </p>
+                    </div>
                 )}
-            </AnimatePresence>
 
-            {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <FavoriteSkeleton key={i} />
+            {isLoading ? (
+                <Grid className="grid-cols-1 items-stretch gap-10 sm:grid-cols-3 lg:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <PropertyCardSkeleton key={index} />
                     ))}
+                </Grid>
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
+                        <AlertTriangle className="h-6 w-6 text-red-500" strokeWidth={2} />
+                    </div>
+                    <p className="text-sm font-semibold text-slate-900">
+                        No se pudieron cargar tus favoritos
+                    </p>
                 </div>
-            ) : filtered.length === 0 ? (
+            ) : properties.length === 0 ? (
                 <FavoritesEmptyState />
+            ) : filtered.length === 0 ? (
+                <div className="rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center">
+                    <p className="text-sm font-semibold text-slate-900">
+                        No encontramos propiedades
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                        Prueba modificando o limpiando los filtros.
+                    </p>
+                </div>
             ) : (
-                <motion.div
-                    layout
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                >
+                <Grid className="grid-cols-1 items-stretch gap-10 sm:grid-cols-3 lg:grid-cols-4">
                     <AnimatePresence>
                         {filtered.map((property) => (
-                            <FavoriteCard
+                            <motion.div
                                 key={property.id}
-                                property={property}
-                                onRemove={handleRemove}
-                                onCompareToggle={handleCompareToggle}
-                                isComparing={comparing.includes(property.id)}
-                            />
+                                layout
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.94 }}
+                            >
+                                <PropertyCard
+                                    property={property}
+                                    onClick={() => openPropertyDetail(property.id)}
+                                />
+                            </motion.div>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </Grid>
             )}
         </div>
     );
