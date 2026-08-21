@@ -1,8 +1,17 @@
-import { RotateCcw } from "lucide-react";
+import { useMemo } from "react";
+import { RotateCcw, TrendingUp } from "lucide-react";
 
-export default function ComparisonHeader({ count, onClear }) {
+export default function ComparisonHeader({ count, onClear, properties = [] }) {
+    const averageValuation = useMemo(() => {
+        const withPrice = properties.filter((p) => p.predicted_price != null);
+        if (withPrice.length === 0) return null;
+
+        const total = withPrice.reduce((sum, p) => sum + Number(p.predicted_price), 0);
+        return total / withPrice.length;
+    }, [properties]);
+
     return (
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
                 <span className="text-xs font-semibold tracking-[0.15em] uppercase text-violet-600/70">
                     Decide con datos
@@ -18,14 +27,36 @@ export default function ComparisonHeader({ count, onClear }) {
             </div>
 
             {count > 0 && (
-                <button
-                    type="button"
-                    onClick={onClear}
-                    className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-colors shrink-0"
-                >
-                    <RotateCcw size={12} />
-                    Limpiar comparación
-                </button>
+                <div className="flex items-center gap-3">
+                    {averageValuation != null && (
+                        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                                <TrendingUp className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">
+                                    Valuación promedio
+                                </p>
+                                <p className="text-sm font-bold text-slate-900">
+                                    {new Intl.NumberFormat("es-MX", {
+                                        style: "currency",
+                                        currency: "USD",
+                                        maximumFractionDigits: 0,
+                                    }).format(averageValuation)}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={onClear}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 shrink-0"
+                    >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        Limpiar comparación
+                    </button>
+                </div>
             )}
         </div>
     );

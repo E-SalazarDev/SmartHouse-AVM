@@ -13,11 +13,11 @@ export default function ComparisonTable({ properties }) {
                         gridTemplateColumns: `160px repeat(${properties.length}, 1fr)`,
                     }}
                 >
-                    <div className="sticky left-0 bg-white border-b border-slate-100" />
+                    <div className="sticky left-0 z-10 border-b border-slate-100 bg-linear-to-br from-violet-50/60 to-white" />
                     {properties.map((p) => (
                         <div
                             key={p.id}
-                            className="border-b border-slate-100 px-4 py-3.5 text-sm font-bold text-slate-950 truncate"
+                            className="border-b border-slate-100 bg-linear-to-br from-violet-50/60 to-white px-4 py-4 text-sm font-bold text-slate-950 truncate"
                         >
                             {p.title}
                         </div>
@@ -31,15 +31,13 @@ export default function ComparisonTable({ properties }) {
                         return (
                             <Fragment key={row.key}>
                                 <div
-                                    className={`sticky left-0 flex items-center gap-2 px-4 py-3.5 text-xs font-bold text-slate-500 ${
-                                        isEvenRow ? "bg-slate-50/60" : "bg-white"
+                                    className={`group sticky left-0 z-10 flex items-center gap-2.5 px-4 py-3.5 text-xs font-bold text-slate-500 ${
+                                        isEvenRow ? "bg-slate-50/70" : "bg-white"
                                     } ${!isLastRow ? "border-b border-slate-100" : ""}`}
                                 >
-                                    <row.icon
-                                        size={14}
-                                        className="text-violet-600 shrink-0"
-                                        strokeWidth={2.5}
-                                    />
+                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                                        <row.icon size={12} strokeWidth={2.5} />
+                                    </div>
                                     {row.label}
                                 </div>
                                 {properties.map((p, i) => (
@@ -48,12 +46,12 @@ export default function ComparisonTable({ properties }) {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: rowIdx * 0.03 }}
-                                        className={`flex items-center px-4 py-3.5 text-sm ${
-                                            isEvenRow ? "bg-slate-50/60" : "bg-white"
+                                        className={`flex items-center px-4 py-3.5 text-sm transition-colors ${
+                                            isEvenRow ? "bg-slate-50/70" : "bg-white"
                                         } ${!isLastRow ? "border-b border-slate-100" : ""}`}
                                     >
                                         {i === winner ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-600">
+                                            <span className="inline-flex items-center gap-1 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-600 shadow-sm shadow-violet-100">
                                                 <Check size={12} strokeWidth={2.5} />
                                                 {row.format(p[row.key])}
                                             </span>

@@ -1,14 +1,20 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Scale, ArrowRight, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useComparison } from "../../context/ComparisonProvider";
 
 export default function ComparisonFloatingBar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { selectedIds, clearComparison, maxItems } = useComparison();
 
     const count = selectedIds.length;
     const canCompare = count >= 2;
+    const isOnComparisonPage = location.pathname === "/comparador";
+
+    if (isOnComparisonPage) {
+        return null;
+    }
 
     return (
         <AnimatePresence>
@@ -18,7 +24,7 @@ export default function ComparisonFloatingBar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 16, scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 340, damping: 24 }}
-                    className="fixed bottom-15 right-20 z-60 flex items-center gap-2"
+                    className="fixed bottom-6 right-6 z-60 flex items-center gap-2"
                 >
                     <button
                         type="button"

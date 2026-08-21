@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { Scale, ArrowRight } from "lucide-react";
 
 export default function ComparisonEmptyState() {
+    const navigate = useNavigate();
+
     return (
         <div className="flex min-h-[45vh] flex-col items-center justify-center text-center px-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-50 mb-5">
@@ -15,6 +18,7 @@ export default function ComparisonEmptyState() {
             </p>
             <button
                 type="button"
+                onClick={() => navigate("/explorar")}
                 className="mt-6 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:shadow-md transition-shadow flex items-center gap-2"
             >
                 Explorar propiedades
