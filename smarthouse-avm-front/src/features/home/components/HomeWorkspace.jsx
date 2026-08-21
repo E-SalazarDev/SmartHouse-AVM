@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import { homeActions } from "../constants/homeActions";
 
 export default function HomeWorkspace() {
+    const navigate = useNavigate();
+
     return (
         <Card className="relative overflow-hidden rounded-4xl border border-white/70 bg-white/80 p-0 shadow-[0_24px_70px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl">
             <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-indigo-400/10 blur-3xl" />
@@ -43,6 +46,8 @@ export default function HomeWorkspace() {
                         return (
                             <motion.button
                                 key={item.title}
+                                type="button"
+                                onClick={() => navigate(item.path)}
                                 initial={{ opacity: 0, y: 14 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.15 + index * 0.08 }}
