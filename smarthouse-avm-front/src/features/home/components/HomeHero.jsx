@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Home, ClipboardCheck, ShieldCheck, Hammer, BadgePercent } from "lucide-react";
+import { Sparkles, Home, ClipboardCheck, ShieldCheck, Hammer, BadgePercent } from "lucide-react";
 import img from "../../../assets/house.png";
 
 export default function HomeHero() {
@@ -108,22 +108,6 @@ export default function HomeHero() {
                             comparables del mercado para estimar valores de vivienda con
                             una experiencia rápida, visual y profesional.
                         </motion.p>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.45, duration: 0.5 }}
-                            className="mt-6 flex flex-col sm:flex-row gap-3 w-full sm:w-auto"
-                        >
-                            <button className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-slate-950 shadow-lg transition-all duration-200 hover:bg-slate-50 active:scale-[0.98]">
-                                Empezar valuación
-                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                            </button>
-
-                            <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:bg-white/15 active:scale-[0.98]">
-                                Explorar propiedades
-                            </button>
-                        </motion.div>
                     </div>
 
                     {/* COLUMNA DERECHA Puntos interactivos */}
