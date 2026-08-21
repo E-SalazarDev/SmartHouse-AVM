@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import { useCountUp } from "../../../hooks/useCountUp";
 
 export default function HomeModelSummary() {
+    const navigate = useNavigate();
     const precision = useCountUp(94.2, 1200, 1);
     const propiedades = useCountUp(38, 1200, 0);
     const variables = useCountUp(79, 1200, 0);
@@ -57,6 +59,8 @@ export default function HomeModelSummary() {
                 </div>
 
                 <motion.button
+                    type="button"
+                    onClick={() => navigate("/explorar")}
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     transition={{
