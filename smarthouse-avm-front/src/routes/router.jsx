@@ -12,6 +12,8 @@ import ProtectedRoute from "../features/auth/components/ProtectedRoute";
 import RegisterPage from "../pages/Register/Register";
 import ComparisonPage from "../pages/Comparison/Comparison";
 import AccountPage from "../pages/Account/Account";
+import TrendsPage from "../pages/Trends/Trends";
+import HowItWorksPage from "../pages/HowItWorks/HowItWorks";
 import { ComparisonProvider } from "../features/comparison/context/ComparisonProvider";
 
 const queryClient = new QueryClient();
@@ -41,8 +43,12 @@ export const router = createBrowserRouter([
                 element: <DashboardPage />,
             },
             {
-                path: "historial",
-                element: <DashboardPage />,
+                path: "tendencias",
+                element: <TrendsPage />,
+            },
+            {
+                path: "como-funciona",
+                element: <HowItWorksPage />,
             },
             {
                 path: "comparador",
