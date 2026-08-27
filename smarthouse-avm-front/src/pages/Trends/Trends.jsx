@@ -1,4 +1,15 @@
-import { BarChart3, Ruler, Sparkles, Calendar, BedDouble, Car, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+    BarChart3,
+    Ruler,
+    Sparkles,
+    Calendar,
+    BedDouble,
+    Car,
+    AlertTriangle,
+    MapPin,
+    TrendingUp,
+} from "lucide-react";
 import usePropertyTrends from "../../features/trends/hooks/usePropertyTrends";
 import {
     computeAverages,
@@ -6,35 +17,53 @@ import {
     computeNeighborhoodDistribution,
 } from "../../features/trends/lib/computeTrendStats";
 
+const fadeUp = {
+    hidden: { opacity: 0, y: 18 },
+    show: { opacity: 1, y: 0 },
+};
+
 function StatCard({ icon: Icon, label, value, unit }) {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600 mb-3">
-                <Icon size={16} />
+        <motion.div
+            variants={fadeUp}
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 300, damping: 22 }}
+            className="rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_4px_20px_-14px_rgba(15,23,42,0.15)] transition-shadow hover:shadow-[0_16px_36px_-16px_rgba(124,58,255,0.3)]"
+        >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-fuchsia-500 text-white shadow-md shadow-violet-500/25 mb-3">
+                <Icon size={17} />
             </div>
             <p className="text-2xl font-bold text-slate-950">
                 {value}
                 {unit && <span className="ml-1 text-sm font-medium text-slate-400">{unit}</span>}
             </p>
             <p className="mt-0.5 text-xs text-slate-500">{label}</p>
-        </div>
+        </motion.div>
     );
 }
 
-function BarRow({ label, count, max }) {
+function BarRow({ icon: Icon, label, count, max, index }) {
     const percent = max > 0 ? Math.max((count / max) * 100, count > 0 ? 4 : 0) : 0;
 
     return (
-        <div className="flex items-center gap-3">
+        <motion.div variants={fadeUp} className="flex items-center gap-3">
+            {Icon && (
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+                    <Icon size={12} />
+                </div>
+            )}
             <span className="w-16 shrink-0 text-xs font-semibold text-slate-500">{label}</span>
             <div className="flex-1 h-6 rounded-full bg-slate-50 overflow-hidden">
-                <div
-                    className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
-                    style={{ width: `${percent}%` }}
+                <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${percent}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, delay: index * 0.05, ease: "easeOut" }}
+                    className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-500"
                 />
             </div>
             <span className="w-8 shrink-0 text-right text-xs font-bold text-slate-700">{count}</span>
-        </div>
+        </motion.div>
     );
 }
 
@@ -47,6 +76,12 @@ export default function Trends() {
 
     const maxQualityCount = Math.max(...qualityDistribution.map((b) => b.count), 1);
     const maxNeighborhoodCount = Math.max(...neighborhoodDistribution.map((n) => n.count), 1);
+
+    const topNeighborhood = neighborhoodDistribution[0];
+    const topQualityBucket = qualityDistribution.reduce(
+        (best, bucket) => (bucket.count > best.count ? bucket : best),
+        qualityDistribution[0] ?? { label: "—", count: 0 }
+    );
 
     if (isLoading) {
         return (
@@ -83,7 +118,59 @@ export default function Trends() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+            {/* Panel de hallazgos */}
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-linear-to-br from-[#131129] via-[#0f0e22] to-[#0a0918] p-6 md:p-7">
+                <div className="pointer-events-none absolute -right-14 -top-14 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl" />
+                <div className="pointer-events-none absolute -left-10 bottom-0 h-32 w-32 rounded-full bg-violet-500/10 blur-2xl" />
+
+                <div className="relative flex items-center gap-2.5 mb-5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+                        <TrendingUp size={16} />
+                    </div>
+                    <p className="text-sm font-bold text-white">Hallazgos del catálogo</p>
+                </div>
+
+                <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <div className="flex items-center gap-2 mb-2 text-violet-300">
+                            <MapPin size={13} />
+                            <p className="text-[11px] font-bold uppercase tracking-wide">
+                                Zona con más propiedades
+                            </p>
+                        </div>
+                        <p className="text-lg font-bold text-white">
+                            {topNeighborhood?.neighborhood ?? "—"}
+                        </p>
+                        <p className="mt-0.5 text-xs text-white/40">
+                            {topNeighborhood?.count ?? 0} propiedades registradas
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <div className="flex items-center gap-2 mb-2 text-violet-300">
+                            <Sparkles size={13} />
+                            <p className="text-[11px] font-bold uppercase tracking-wide">
+                                Nivel de calidad más común
+                            </p>
+                        </div>
+                        <p className="text-lg font-bold text-white">
+                            {topQualityBucket.label}/10
+                        </p>
+                        <p className="mt-0.5 text-xs text-white/40">
+                            {topQualityBucket.count} propiedades en este rango
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Estadísticas promedio */}
+            <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ staggerChildren: 0.06 }}
+                className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
+            >
                 <StatCard
                     icon={BarChart3}
                     label="Precio promedio estimado"
@@ -102,40 +189,57 @@ export default function Trends() {
                 <StatCard icon={Calendar} label="Año promedio" value={averages.avgYear} />
                 <StatCard icon={BedDouble} label="Habitaciones prom." value={averages.avgBedrooms} />
                 <StatCard icon={Car} label="Garaje promedio" value={averages.avgGarage} />
-            </div>
+            </motion.div>
 
+            {/* Distribuciones */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="rounded-2xl border border-slate-100 bg-white p-5">
-                    <p className="text-sm font-bold text-slate-950 mb-4">
+                <motion.div
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ staggerChildren: 0.06 }}
+                    className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_4px_20px_-14px_rgba(15,23,42,0.12)]"
+                >
+                    <motion.p variants={fadeUp} className="text-sm font-bold text-slate-950 mb-4">
                         Distribución por calidad
-                    </p>
+                    </motion.p>
                     <div className="flex flex-col gap-3">
-                        {qualityDistribution.map((bucket) => (
+                        {qualityDistribution.map((bucket, index) => (
                             <BarRow
                                 key={bucket.label}
+                                icon={Sparkles}
                                 label={bucket.label}
                                 count={bucket.count}
                                 max={maxQualityCount}
+                                index={index}
                             />
                         ))}
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="rounded-2xl border border-slate-100 bg-white p-5">
-                    <p className="text-sm font-bold text-slate-950 mb-4">
+                <motion.div
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ staggerChildren: 0.06 }}
+                    className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_4px_20px_-14px_rgba(15,23,42,0.12)]"
+                >
+                    <motion.p variants={fadeUp} className="text-sm font-bold text-slate-950 mb-4">
                         Propiedades por zona
-                    </p>
+                    </motion.p>
                     <div className="flex flex-col gap-3">
-                        {neighborhoodDistribution.map((item) => (
+                        {neighborhoodDistribution.map((item, index) => (
                             <BarRow
                                 key={item.neighborhood}
+                                icon={MapPin}
                                 label={item.neighborhood}
                                 count={item.count}
                                 max={maxNeighborhoodCount}
+                                index={index}
                             />
                         ))}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );
