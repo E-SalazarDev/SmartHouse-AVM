@@ -9,7 +9,6 @@ import {
     Settings2,
     Brain,
     Wallet,
-    ArrowRight,
     Info,
     Database,
     Cpu,
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 import { useCountUp } from "../../hooks/useCountUp";
 
-const FLOW_DURATION = 3.2;
+const FLOW_DURATION = 5;
 
 const flowSteps = [
     { icon: Home, label: "Propiedad", desc: "Datos de la vivienda" },
@@ -25,6 +24,12 @@ const flowSteps = [
     { icon: Brain, label: "Modelo de IA", desc: "Random Forest entrenado" },
     { icon: Wallet, label: "Valor estimado", desc: "Predicción de precio" },
 ];
+
+const NODE_X = [60, 353, 647, 940];
+const NODE_Y = 110;
+const NODE_SIZE = 84;
+
+const PARTICLE_COLORS = ["#a78bfa", "#818cf8", "#e879f9", "#34d399"];
 
 const features = [
     { icon: Home, label: "Propiedad", desc: "Tipo y zona" },
@@ -46,35 +51,98 @@ const fadeUp = {
     show: { opacity: 1, y: 0 },
 };
 
-function FlowStep({ icon: Icon, label, desc, index, total }) {
-    const nodeDelay = (index / (total - 1)) * FLOW_DURATION;
+function FlowDiagram() {
+    const pathD = `M${NODE_X[0]},${NODE_Y} L${NODE_X[3]},${NODE_Y}`;
 
     return (
-        <motion.div variants={fadeUp} className="relative z-10 flex flex-col items-center text-center">
-            <motion.div
+        <svg viewBox="0 0 1000 220" className="w-full">
+            <defs>
+                <filter id="nodeGlow" x="-60%" y="-60%" width="220%" height="220%">
+                    <feGaussianBlur stdDeviation="7" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+
+            {/* Trazo base — estático, siempre detrás por orden de dibujo */}
+            <path
+                d={pathD}
+                stroke="rgba(255,255,255,0.14)"
+                strokeWidth="2.5"
+                strokeDasharray="2 7"
+                strokeLinecap="round"
+                fill="none"
+            />
+
+            {/* Paquete de datos viajando sobre el trazo, cambiando de color por tramo */}
+            <motion.circle
+                r="6"
                 animate={{
-                    y: [0, -6, 0],
-                    scale: [1, 1.14, 1],
-                    boxShadow: [
-                        "0 0 0px 0px rgba(99,102,241,0)",
-                        "0 0 26px 6px rgba(129,140,248,0.55)",
-                        "0 0 0px 0px rgba(99,102,241,0)",
-                    ],
+                    cx: [NODE_X[0], NODE_X[3]],
+                    fill: PARTICLE_COLORS,
                 }}
                 transition={{
-                    duration: 0.7,
-                    delay: nodeDelay,
-                    repeat: Infinity,
-                    repeatDelay: FLOW_DURATION - 0.7,
-                    ease: "easeInOut",
+                    cx: { duration: FLOW_DURATION, repeat: Infinity, ease: "linear" },
+                    fill: { duration: FLOW_DURATION, repeat: Infinity, ease: "linear" },
                 }}
-                className="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/30 bg-linear-to-br from-indigo-500/30 to-violet-700/20 text-indigo-300"
-            >
-                <Icon size={22} />
-            </motion.div>
-            <p className="mt-3 text-sm font-bold text-white">{label}</p>
-            <p className="mt-0.5 text-xs text-white/40">{desc}</p>
-        </motion.div>
+                cy={NODE_Y}
+                style={{ filter: "drop-shadow(0 0 7px rgba(165,180,252,0.9))" }}
+            />
+
+            {/* Nodos — dibujados después del trazo y el punto, relleno sólido: siempre encima */}
+            {flowSteps.map((step, index) => {
+                const x = NODE_X[index];
+                const delay = (index / (flowSteps.length - 1)) * FLOW_DURATION;
+                const Icon = step.icon;
+
+                return (
+                    <g key={step.label}>
+                        <motion.rect
+                            x={x - NODE_SIZE / 2}
+                            y={NODE_Y - NODE_SIZE / 2}
+                            width={NODE_SIZE}
+                            height={NODE_SIZE}
+                            rx="18"
+                            fill="#181433"
+                            stroke="rgba(99,102,241,0.4)"
+                            strokeWidth="2"
+                            animate={{
+                                stroke: [
+                                    "rgba(99,102,241,0.4)",
+                                    "rgba(199,210,254,0.95)",
+                                    "rgba(99,102,241,0.4)",
+                                ],
+                                filter: [
+                                    "url(#nodeGlow) opacity(0)",
+                                    "url(#nodeGlow) opacity(1)",
+                                    "url(#nodeGlow) opacity(0)",
+                                ],
+                            }}
+                            transition={{
+                                duration: 0.7,
+                                delay,
+                                repeat: Infinity,
+                                repeatDelay: FLOW_DURATION - 0.7,
+                                ease: "easeInOut",
+                            }}
+                        />
+
+                        <foreignObject
+                            x={x - 16}
+                            y={NODE_Y - 16}
+                            width="32"
+                            height="32"
+                        >
+                            <div className="flex h-full w-full items-center justify-center text-indigo-300">
+                                <Icon size={28} />
+                            </div>
+                        </foreignObject>
+                    </g>
+                );
+            })}
+        </svg>
     );
 }
 
@@ -162,12 +230,12 @@ export default function HowItWorks() {
                 </p>
             </motion.div>
 
-            {/* Flujo general */}
+            {/* Flujo general — diagrama técnico en SVG */}
             <motion.div
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.3 }}
-                transition={{ staggerChildren: 0.12 }}
+                transition={{ staggerChildren: 0.1 }}
                 className="relative overflow-hidden rounded-2xl border border-white/10 bg-linear-to-br from-[#131129] via-[#0f0e22] to-[#0a0918] p-6 md:p-8"
             >
                 <div className="pointer-events-none absolute -left-16 top-1/2 h-44 w-60 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
@@ -176,32 +244,20 @@ export default function HowItWorks() {
 
                 <motion.p
                     variants={fadeUp}
-                    className="relative z-10 mb-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-300/75"
+                    className="relative mb-2 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-300/75"
                 >
                     Flujo del modelo
                 </motion.p>
 
-                <div className="relative">
-                    {/* Track — detrás de los íconos (z-0), un solo pulso continuo */}
-                    <div className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-7 z-0 hidden h-px md:block">
-                        <div className="absolute inset-0 bg-white/10" />
-                        <motion.div
-                            className="absolute inset-y-0 w-28 rounded-full bg-linear-to-r from-transparent via-indigo-400 to-transparent"
-                            animate={{ left: ["0%", "100%"] }}
-                            transition={{ duration: FLOW_DURATION, repeat: Infinity, ease: "linear" }}
-                        />
-                    </div>
+                <FlowDiagram />
 
-                    <div className="relative grid grid-cols-2 gap-y-8 md:grid-cols-4 md:gap-y-0">
-                        {flowSteps.map((step, index) => (
-                            <FlowStep
-                                key={step.label}
-                                {...step}
-                                index={index}
-                                total={flowSteps.length}
-                            />
-                        ))}
-                    </div>
+                <div className="mt-2 grid grid-cols-2 gap-y-4 md:grid-cols-4">
+                    {flowSteps.map((step) => (
+                        <div key={step.label} className="text-center">
+                            <p className="text-sm font-bold text-white">{step.label}</p>
+                            <p className="mt-0.5 text-xs text-white/40">{step.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </motion.div>
 
