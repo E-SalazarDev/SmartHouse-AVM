@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { GitBranch } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import { useCountUp } from "../../../hooks/useCountUp";
 
 export default function HomeModelSummary() {
-    const navigate = useNavigate();
     const precision = useCountUp(94.2, 1200, 1);
     const propiedades = useCountUp(38, 1200, 0);
     const variables = useCountUp(79, 1200, 0);
@@ -58,21 +56,27 @@ export default function HomeModelSummary() {
                     </div>
                 </div>
 
-                <motion.button
-                    type="button"
-                    onClick={() => navigate("/explorar")}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 17,
-                    }}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 text-white font-bold rounded-2xl text-sm bg-linear-to-r from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 whitespace-nowrap w-full md:w-auto"
-                >
-                    Calcular precio con IA
-                    <ArrowRight className="w-4 h-4" />
-                </motion.button>
+                <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-8 py-6 w-full md:w-56">
+                    <div className="relative flex h-14 w-14 items-center justify-center">
+                        <motion.span
+                            className="absolute inset-0 rounded-full bg-indigo-400/20"
+                            animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
+                            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                        <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-purple-500 shadow-lg">
+                            <GitBranch className="h-6 w-6 text-white" />
+                        </div>
+                    </div>
+
+                    <div className="text-center">
+                        <p className="text-sm font-bold text-slate-900">
+                            Versionado con MLflow
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                            Cada entrenamiento queda registrado en el Model Registry
+                        </p>
+                    </div>
+                </div>
             </div>
         </Card>
     );
