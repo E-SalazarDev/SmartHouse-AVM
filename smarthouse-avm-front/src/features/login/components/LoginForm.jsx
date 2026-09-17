@@ -6,7 +6,7 @@ import MobileBrandHeader from "./mobile-brand/MobileBrandHeader";
 import EmailField from "./form/EmailField";
 import PasswordField from "./form/PasswordField";
 import FormError from "./form/FormError";
-import RememberMeCheckbox from "./form/RememberMeCheckbox";
+// import RememberMeCheckbox from "./form/RememberMeCheckbox"; // Pendiente: aún no implementado en backend
 import SubmitButton from "./form/SubmitButton";
 
 export default function LoginForm() {
@@ -31,7 +31,7 @@ export default function LoginForm() {
                 <MobileBrandHeader />
 
                 <header>
-                    <h1 className="font-serif text-3xl font-normal text-slate-900">
+                    <h1 className="text-3xl font-bold text-slate-950">
                         Bienvenido de vuelta
                     </h1>
                     <p className="mt-2 text-sm text-slate-500">
@@ -56,7 +56,7 @@ export default function LoginForm() {
 
                     <FormError message={formError} />
 
-                    <RememberMeCheckbox disabled={isLoggingIn} />
+                    {/* <RememberMeCheckbox disabled={isLoggingIn} /> */}
 
                     <SubmitButton isLoading={isLoggingIn}>
                         {isLoggingIn ? "Iniciando sesión..." : "Iniciar sesión"}
