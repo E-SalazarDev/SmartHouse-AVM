@@ -7,19 +7,19 @@ El sistema permite registrar propiedades, consultar un catálogo, visualizar det
 ## Capturas de pantalla
 
 ### Portada
-![Portada](docs/screenshots/cover.png)
+![Portada](smarthouse-avm-front/docs/screenshots/cover.png)
 
 ### Inicio
-![Inicio](docs/screenshots/home.png)
+![Inicio](smarthouse-avm-front/docs/screenshots/home.png)
 
 ### Búsqueda y comparador
-![Búsqueda y comparador](docs/screenshots/search-comparison.png)
+![Búsqueda y comparador](smarthouse-avm-front/docs/screenshots/search-comparison.png)
 
 ### Favoritos y comparador
-![Favoritos y comparador](docs/screenshots/favorites-comparison.png)
+![Favoritos y comparador](smarthouse-avm-front/docs/screenshots/favorites-comparison.png)
 
 ### Cálculo de precio con IA
-![Cálculo de precio](docs/screenshots/calculate-price.png)
+![Cálculo de precio](smarthouse-avm-front/docs/screenshots/calculate-price.png)
 
 ## Objetivo del proyecto
 
