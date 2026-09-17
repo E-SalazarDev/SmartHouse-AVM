@@ -82,7 +82,7 @@ export default function HomeHero() {
                         >
                             <Sparkles className="w-4 h-4 text-indigo-300" />
                             <span className="text-[11px] font-bold text-white tracking-widest uppercase">
-                                Automated Valuation Model
+                                Motor Predictivo de IA
                             </span>
                         </motion.div>
 
