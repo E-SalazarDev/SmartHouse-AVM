@@ -4,6 +4,23 @@ SmartHouse AVM es una plataforma web Full Stack para estimar el valor probable d
 
 El sistema permite registrar propiedades, consultar un catálogo, visualizar detalles de una vivienda, ejecutar una predicción de precio mediante un modelo de Machine Learning y guardar el historial de valuaciones realizadas.
 
+## Capturas de pantalla
+
+### Portada
+![Portada](docs/screenshots/cover.png)
+
+### Inicio
+![Inicio](docs/screenshots/home.png)
+
+### Búsqueda y comparador
+![Búsqueda y comparador](docs/screenshots/search-comparison.png)
+
+### Favoritos y comparador
+![Favoritos y comparador](docs/screenshots/favorites-comparison.png)
+
+### Cálculo de precio con IA
+![Cálculo de precio](docs/screenshots/calculate-price.png)
+
 ## Objetivo del proyecto
 
 Construir un producto funcional que combine desarrollo web, backend, Machine Learning y MLOps.
