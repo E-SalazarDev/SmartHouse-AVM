@@ -31,7 +31,6 @@ export default function RegisterForm() {
         try {
             await register(formData);
             navigate("/home");
-            console.log("Registro exitoso");
 
         } catch (error) {
             console.error("Error al registrar:", error);
@@ -66,7 +65,7 @@ export default function RegisterForm() {
                 </div>
 
                 <header>
-                    <h1 className="font-serif text-3xl font-normal text-slate-900">
+                    <h1 className="text-3xl font-bold text-slate-950">
                         Crea tu cuenta
                     </h1>
                     <p className="mt-2 text-sm text-slate-500">
@@ -96,7 +95,7 @@ export default function RegisterForm() {
                                     name="first_name"
                                     value={formData.first_name}
                                     onChange={handleChange}
-                                    placeholder="José Eduardo"
+                                    placeholder="Nombre"
                                     autoComplete="given-name"
                                     className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                                 />
@@ -116,7 +115,7 @@ export default function RegisterForm() {
                                 name="last_name"
                                 value={formData.last_name}
                                 onChange={handleChange}
-                                placeholder="Salazar Tecuapacho"
+                                placeholder="Apellido"
                                 autoComplete="family-name"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                             />
@@ -143,7 +142,7 @@ export default function RegisterForm() {
                                 name="username"
                                 value={formData.username}
                                 onChange={handleChange}
-                                placeholder="eduardo"
+                                placeholder="Nombre de usuario"
                                 autoComplete="username"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                             />
@@ -170,7 +169,7 @@ export default function RegisterForm() {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                placeholder="tu@correo.com"
+                                placeholder="correo@ejemplo.com"
                                 autoComplete="email"
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50/60 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                             />
