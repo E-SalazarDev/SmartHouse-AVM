@@ -15,6 +15,7 @@ import AccountPage from "../pages/Account/Account";
 import TrendsPage from "../pages/Trends/Trends";
 import HowItWorksPage from "../pages/HowItWorks/HowItWorks";
 import NotFoundPage from "../pages/NotFound/NotFound";
+import ForgotPasswordPage from "../pages/ForgotPassword/ForgotPassword";
 import { ComparisonProvider } from "../features/comparison/context/ComparisonProvider";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
             {
                 path: "registro",
                 element: <RegisterPage />,
+            },
+            {
+                path: "recuperar-password",
+                element: <ForgotPasswordPage />,
             },
             {
                 path: "explorar",
