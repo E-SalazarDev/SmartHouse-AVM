@@ -1,9 +1,32 @@
 services:
+  db:
+    image: postgres:17-alpine
+    container_name: smarthouse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smarthouse
+      POSTGRES_USER: smarthouse
+      POSTGRES_PASSWORD: smarthouse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smarthouse -d smarthouse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  
   mlflow:
+    profiles: ["mlflow"]
     image: ghcr.io/mlflow/mlflow:latest
-    ports: 
+    ports:
       - "5555:5000"
 
     command: mlflow server --host 0.0.0.0 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /tmp/mlruns
     container_name: mlflow-tracking-server
-    restart: unless-stopped  
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
