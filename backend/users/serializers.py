@@ -5,6 +5,9 @@ from django.contrib.auth import (
 from django.contrib.auth.password_validation import (
     validate_password,
 )
+from django.contrib.auth.validators import (
+    UnicodeUsernameValidator,
+)
 
 from rest_framework import serializers
 
@@ -14,6 +17,8 @@ from rest_framework_simplejwt.exceptions import (
 from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
 )
+
+from .services import get_password_errors
 
 
 User = get_user_model()
@@ -186,6 +191,200 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    """
+    Actualiza nombre, apellido y nombre de usuario del usuario autenticado.
+
+    El correo no se edita aquí: cambiarlo requiere verificar el nuevo
+    correo antes de aplicarlo.
+    """
+
+    username = serializers.CharField(
+        max_length=150,
+        required=False,
+        allow_blank=False,
+        validators=[UnicodeUsernameValidator()],
+    )
+
+    first_name = serializers.CharField(
+        max_length=150,
+        required=False,
+        allow_blank=False,
+    )
+
+    last_name = serializers.CharField(
+        max_length=150,
+        required=False,
+        allow_blank=False,
+    )
+
+    class Meta:
+        model = User
+
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+        )
+
+    def validate_username(self, value):
+        username_exists = (
+            User.objects.filter(
+                username__iexact=value,
+            )
+            .exclude(
+                pk=self.instance.pk,
+            )
+            .exists()
+        )
+
+        if username_exists:
+            raise serializers.ValidationError(
+                "Ya existe un usuario con este nombre."
+            )
+
+        return value
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Valida el cambio de contraseña de un usuario autenticado.
+    """
+
+    current_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+
+    new_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+
+    new_password_confirm = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+
+    def validate_current_password(self, value):
+        user = self.context["request"].user
+
+        if not user.check_password(value):
+            raise serializers.ValidationError(
+                "La contraseña actual es incorrecta."
+            )
+
+        return value
+
+    def validate(self, attributes):
+        user = self.context["request"].user
+
+        if (
+            attributes["new_password"]
+            != attributes["new_password_confirm"]
+        ):
+            raise serializers.ValidationError(
+                {
+                    "new_password_confirm": (
+                        "Las contraseñas no coinciden."
+                    ),
+                }
+            )
+
+        if (
+            attributes["new_password"]
+            == attributes["current_password"]
+        ):
+            raise serializers.ValidationError(
+                {
+                    "new_password": (
+                        "La nueva contraseña debe ser "
+                        "diferente a la actual."
+                    ),
+                }
+            )
+
+        errors = get_password_errors(
+            attributes["new_password"],
+            user=user,
+        )
+
+        if errors:
+            raise serializers.ValidationError(
+                {
+                    "new_password": errors,
+                }
+            )
+
+        return attributes
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """
+    Correo al que se enviará el código de recuperación.
+    """
+
+    email = serializers.EmailField()
+
+
+class PasswordResetVerifySerializer(serializers.Serializer):
+    """
+    Correo y código de 6 dígitos recibido por correo.
+    """
+
+    email = serializers.EmailField()
+
+    code = serializers.RegexField(
+        regex=r"^\d{6}$",
+        error_messages={
+            "invalid": "El código debe tener 6 dígitos.",
+        },
+    )
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    Correo, código y nueva contraseña.
+
+    La fortaleza de la contraseña se valida en la vista, después de
+    comprobar el código, para no quemar el código por una contraseña débil.
+    """
+
+    email = serializers.EmailField()
+
+    code = serializers.RegexField(
+        regex=r"^\d{6}$",
+        error_messages={
+            "invalid": "El código debe tener 6 dígitos.",
+        },
+    )
+
+    new_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+
+    new_password_confirm = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+    )
+
+    def validate(self, attributes):
+        if (
+            attributes["new_password"]
+            != attributes["new_password_confirm"]
+        ):
+            raise serializers.ValidationError(
+                {
+                    "new_password_confirm": (
+                        "Las contraseñas no coinciden."
+                    ),
+                }
+            )
+
+        return attributes
 
 
 class CustomTokenObtainPairSerializer(

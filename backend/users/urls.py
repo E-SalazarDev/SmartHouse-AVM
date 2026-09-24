@@ -6,9 +6,13 @@ from rest_framework_simplejwt.views import (
 )
 
 from .views import (
+    ChangePasswordView,
     CurrentUserView,
     CustomTokenObtainPairView,
     LogoutView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView,
+    PasswordResetVerifyView,
     UserRegisterView,
 )
 
@@ -40,8 +44,28 @@ urlpatterns = [
         name="auth-me",
     ),
     path(
+        "change-password/",
+        ChangePasswordView.as_view(),
+        name="auth-change-password",
+    ),
+    path(
         "logout/",
         LogoutView.as_view(),
         name="auth-logout",
+    ),
+    path(
+        "password-reset/request/",
+        PasswordResetRequestView.as_view(),
+        name="auth-password-reset-request",
+    ),
+    path(
+        "password-reset/verify/",
+        PasswordResetVerifyView.as_view(),
+        name="auth-password-reset-verify",
+    ),
+    path(
+        "password-reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="auth-password-reset-confirm",
     ),
 ]
