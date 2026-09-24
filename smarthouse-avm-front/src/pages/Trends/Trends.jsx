@@ -22,6 +22,7 @@ const fadeUp = {
     show: { opacity: 1, y: 0 },
 };
 
+// --- TARJETA DE ESTADÍSTICA (SIN CAMBIOS) ---
 function StatCard({ icon: Icon, label, value, unit }) {
     return (
         <motion.div
@@ -42,28 +43,66 @@ function StatCard({ icon: Icon, label, value, unit }) {
     );
 }
 
-function BarRow({ icon: Icon, label, count, max, index }) {
-    const percent = max > 0 ? Math.max((count / max) * 100, count > 0 ? 4 : 0) : 0;
-
+// --- GRÁFICO DE BARRAS VERTICALES (Adaptado a fondo oscuro) ---
+function VerticalBarChart({ data, max, total }) {
     return (
-        <motion.div variants={fadeUp} className="flex items-center gap-3">
-            {Icon && (
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                    <Icon size={12} />
-                </div>
-            )}
-            <span className="w-16 shrink-0 text-xs font-semibold text-slate-500">{label}</span>
-            <div className="flex-1 h-6 rounded-full bg-slate-50 overflow-hidden">
-                <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${percent}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.7, delay: index * 0.05, ease: "easeOut" }}
-                    className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-500"
-                />
+        <div className="relative flex h-48 items-end justify-between gap-2 pt-6">
+            {/* Líneas de guía horizontales */}
+            <div className="absolute inset-x-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-full border-t border-dashed border-white/10" />
+                ))}
             </div>
-            <span className="w-8 shrink-0 text-right text-xs font-bold text-slate-700">{count}</span>
-        </motion.div>
+
+            {data.map((item, index) => {
+                const percent = max > 0 ? (item.count / max) * 100 : 0;
+                const percentOfTotal = total > 0 ? (item.count / total) * 100 : 0;
+                const barHeight = item.count > 0 ? Math.max(percent, 5) : 0;
+
+                return (
+                    <div key={item.label || item.neighborhood} className="relative flex flex-1 flex-col items-center justify-end h-full z-10">
+                        
+                        <motion.span 
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.05 + 0.3 }}
+                            className="mb-1 text-xs font-bold text-white/90"
+                        >
+                            {item.count}
+                        </motion.span>
+
+                        <div className="relative w-full max-w-[40px] flex-1 flex items-end justify-center">
+                            <motion.div
+                                initial={{ height: 0 }}
+                                whileInView={{ height: `${barHeight}%` }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.05, ease: "easeOut" }}
+                                className={`relative w-full rounded-t-md bg-gradient-to-t from-violet-600 to-fuchsia-400 shadow-[0_0_15px_-3px_rgba(124,58,255,0.5)]`}
+                            >
+                                <div className="absolute top-0 inset-x-0 h-2 bg-white/40 rounded-t-md" />
+                                
+                                {barHeight > 20 ? (
+                                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white/90">
+                                        {percentOfTotal.toFixed(0)}%
+                                    </span>
+                                ) : (
+                                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white/50">
+                                        {percentOfTotal.toFixed(0)}%
+                                    </span>
+                                )}
+                            </motion.div>
+                        </div>
+
+                        <div className="mt-2 flex h-8 w-full items-center justify-center">
+                            <span className="text-[10px] font-semibold text-white/60 text-center leading-tight">
+                                {item.label || item.neighborhood}
+                            </span>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
     );
 }
 
@@ -76,6 +115,7 @@ export default function Trends() {
 
     const maxQualityCount = Math.max(...qualityDistribution.map((b) => b.count), 1);
     const maxNeighborhoodCount = Math.max(...neighborhoodDistribution.map((n) => n.count), 1);
+    const totalProperties = properties.length;
 
     const topNeighborhood = neighborhoodDistribution[0];
     const topQualityBucket = qualityDistribution.reduce(
@@ -193,51 +233,60 @@ export default function Trends() {
 
             {/* Distribuciones */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                
+                {/* Distribución por Calidad */}
                 <motion.div
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ staggerChildren: 0.06 }}
-                    className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_4px_20px_-14px_rgba(15,23,42,0.12)]"
+                    className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d0b1a] p-6 shadow-2xl"
                 >
-                    <motion.p variants={fadeUp} className="text-sm font-bold text-slate-950 mb-4">
-                        Distribución por calidad
-                    </motion.p>
-                    <div className="flex flex-col gap-3">
-                        {qualityDistribution.map((bucket, index) => (
-                            <BarRow
-                                key={bucket.label}
-                                icon={Sparkles}
-                                label={bucket.label}
-                                count={bucket.count}
-                                max={maxQualityCount}
-                                index={index}
-                            />
-                        ))}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-500/10 blur-2xl" />
+                    
+                    <div className="relative">
+                        {/* TÍTULOS RESTAURADOS */}
+                        <motion.p variants={fadeUp} className="text-sm font-bold text-white mb-1">
+                            Distribución por calidad
+                        </motion.p>
+                        <motion.p variants={fadeUp} className="text-xs text-white/40 mb-6">
+                            Cantidad de propiedades según su puntuación (1 al 10)
+                        </motion.p>
+                        
+                        <VerticalBarChart 
+                            data={qualityDistribution.map(b => ({ label: b.label, count: b.count }))} 
+                            max={maxQualityCount} 
+                            total={totalProperties} 
+                        />
                     </div>
                 </motion.div>
 
+                {/* Propiedades por Zona */}
                 <motion.div
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ staggerChildren: 0.06 }}
-                    className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_4px_20px_-14px_rgba(15,23,42,0.12)]"
+                    className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d0b1a] p-6 shadow-2xl"
                 >
-                    <motion.p variants={fadeUp} className="text-sm font-bold text-slate-950 mb-4">
-                        Propiedades por zona
-                    </motion.p>
-                    <div className="flex flex-col gap-3">
-                        {neighborhoodDistribution.map((item, index) => (
-                            <BarRow
-                                key={item.neighborhood}
-                                icon={MapPin}
-                                label={item.neighborhood}
-                                count={item.count}
-                                max={maxNeighborhoodCount}
-                                index={index}
-                            />
-                        ))}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-500/10 blur-2xl" />
+
+                    <div className="relative">
+                        {/* TÍTULOS RESTAURADOS */}
+                        <motion.p variants={fadeUp} className="text-sm font-bold text-white mb-1">
+                            Propiedades por zona
+                        </motion.p>
+                        <motion.p variants={fadeUp} className="text-xs text-white/40 mb-6">
+                            Cantidad de propiedades registradas en cada vecindario
+                        </motion.p>
+
+                        <VerticalBarChart 
+                            data={neighborhoodDistribution.map(n => ({ label: n.neighborhood, count: n.count }))} 
+                            max={maxNeighborhoodCount} 
+                            total={totalProperties} 
+                        />
                     </div>
                 </motion.div>
             </div>
