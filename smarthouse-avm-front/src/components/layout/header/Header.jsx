@@ -5,6 +5,7 @@ import Nav from "./Nav";
 import MobileNav from "./MobileNav";
 import HeaderAuthButton from "./HeaderAuthButton";
 import UserMenu from "./UserMenu";
+import { BrandMark } from "../../ui/BrandLogo";
 import useAuth from "../../../features/auth/hooks/useAuth";
 
 const OUTER_PAD = 14;
@@ -123,9 +124,11 @@ export default function Header() {
                 >
                     <div className="flex h-14 mt-1.5 items-center min-w-max">
                         <div className="flex items-center gap-3 group cursor-pointer">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-indigo-500/20 transform group-hover:scale-105 transition-transform duration-200">
-                                <span className="text-base font-black text-white tracking-wider">S</span>
-                            </div>
+                            <BrandMark
+                                size={40}
+                                decorative
+                                className="shrink-0 transform transition-transform duration-200 group-hover:scale-105 drop-shadow-[0_6px_12px_rgba(99,102,241,0.3)]"
+                            />
                             <span className="text-lg md:text-xl font-bold tracking-tight bg-linear-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                                 SmartHouse
                                 <span className="ml-1 text-sm md:text-base font-extrabold tracking-widest bg-linear-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
