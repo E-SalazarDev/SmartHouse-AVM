@@ -10,11 +10,21 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Variables privadas (opcional): si existe backend/.env y python-dotenv está
+# instalado, se cargan; si no, todo sigue funcionando con los valores por defecto.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(BASE_DIR / ".env")
+except ImportError:
+    pass
 
 
 # Quick-start development settings - unsuitable for production
@@ -117,7 +127,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Español: traduce los mensajes de los validadores de contraseña y de DRF.
+LANGUAGE_CODE = 'es-mx'
 
 TIME_ZONE = 'UTC'
 
@@ -146,6 +157,38 @@ CORS_ALLOWED_ORIGINS = [
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+# Correo (recuperación de contraseña)
+# Por defecto (desarrollo) NO se envía nada: cada correo se guarda como un
+# archivo .html en backend/sent_emails/ y la consola imprime el asunto (con el
+# código) y la ruta para abrirlo en el navegador.
+# Para enviar correos reales por SMTP define en backend/.env:
+#   EMAIL_HOST_USER=... y EMAIL_HOST_PASSWORD=...  (Gmail con contraseña de app)
+# o apunta a un servidor SMTP local como Mailpit:
+#   EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+#   EMAIL_HOST=localhost, EMAIL_PORT=1025, EMAIL_USE_TLS=False
+DEV_EMAIL_DIR = BASE_DIR / "sent_emails"
+
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "").strip()
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "").replace(" ", "")
+
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND") or (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
+    else "core.dev_email_backend.HtmlFileEmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+EMAIL_TIMEOUT = 10
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL") or (
+    f"SmartHouse AVM <{EMAIL_HOST_USER}>"
+    if EMAIL_HOST_USER
+    else "SmartHouse AVM <no-reply@smarthouse.local>"
+)
+
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
