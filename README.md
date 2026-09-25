@@ -1,31 +1,35 @@
 # SmartHouse AVM
 
-SmartHouse AVM es una plataforma web Full Stack para estimar el valor probable de propiedades inmobiliarias utilizando Inteligencia Artificial.
+SmartHouse AVM es una plataforma web Full Stack orientada a la valuación automatizada de propiedades inmobiliarias, que integra un modelo de Machine Learning dentro de una aplicación web.
 
-El sistema permite registrar propiedades, consultar un catálogo, visualizar detalles de una vivienda, ejecutar una predicción de precio mediante un modelo de Machine Learning y guardar el historial de valuaciones realizadas.
+El sistema permite trabajar con información de propiedades, consultar sus características y utilizar un modelo entrenado para generar una estimación de su valor probable a partir de diferentes características físicas, constructivas y de ubicación.
+
+La plataforma integra el procesamiento de los datos, el modelo de Machine Learning, un backend con API REST, persistencia de información y una interfaz web, permitiendo que el modelo pueda utilizarse como parte de un sistema completo y no únicamente como un modelo ejecutado de forma aislada.
 
 ## Capturas de pantalla
 
 ### Portada
-![Portada](smarthouse-avm-front/docs/screenshots/cover.png)
+![Portada](frontend/docs/screenshots/cover.png)
 
 ### Inicio
-![Inicio](smarthouse-avm-front/docs/screenshots/home.png)
+![Inicio](frontend/docs/screenshots/home.png)
 
 ### Búsqueda y comparador
-![Búsqueda y comparador](smarthouse-avm-front/docs/screenshots/search-comparison.png)
+![Búsqueda y comparador](frontend/docs/screenshots/search-comparison.png)
 
 ### Favoritos y comparador
-![Favoritos y comparador](smarthouse-avm-front/docs/screenshots/favorites-comparison.png)
+![Favoritos y comparador](frontend/docs/screenshots/favorites-comparison.png)
 
 ### Cálculo de precio con IA
-![Cálculo de precio](smarthouse-avm-front/docs/screenshots/calculate-price.png)
+![Cálculo de precio](frontend/docs/screenshots/calculate-price.png)
 
 ## Objetivo del proyecto
 
-Construir un producto funcional que combine desarrollo web, backend, Machine Learning y MLOps.
+El objetivo de SmartHouse AVM es desarrollar un sistema capaz de integrar un modelo de Machine Learning en una plataforma web para generar estimaciones automatizadas del valor de propiedades inmobiliarias.
 
-El propósito no es únicamente entrenar un modelo, sino integrar ese modelo dentro de una aplicación real utilizando Django, React, MLflow y una arquitectura preparada para escalar.
+El proyecto busca conectar el proceso completo, desde el procesamiento de los datos y la ejecución del modelo hasta la exposición de las predicciones mediante una API REST y su utilización dentro de una aplicación web.
+
+De esta forma, el sistema permite explorar cómo un modelo de Machine Learning puede integrarse dentro de una solución de software completa, combinando datos, inteligencia artificial, backend, APIs y persistencia de información.
 
 ## Tecnologías utilizadas
 
@@ -40,7 +44,8 @@ El propósito no es únicamente entrenar un modelo, sino integrar ese modelo den
 * Python
 * Django
 * Django REST Framework
-* SQLite en desarrollo
+* PostgreSQL (con Docker Compose)
+* SimpleJWT (autenticación con JWT)
 * CORS Headers
 
 ### Inteligencia Artificial
@@ -75,12 +80,13 @@ SmartHouse-AVM/
 │
 ├── backend/
 │   ├── core/
+│   ├── users/
 │   ├── predictions/
 │   ├── properties/
-│   ├── db.sqlite3
+│   ├── favorites/
 │   └── manage.py
 │
-├── front/
+├── frontend/
 │
 ├── docker-compose.yml
 ├── .gitignore
@@ -112,6 +118,8 @@ ai-engine/artifacts/linear_regression_model.pkl
 
 El backend expone APIs REST para:
 
+* Registrar, iniciar y cerrar sesión de usuarios (JWT)
+* Consultar y actualizar el perfil, y cambiar o recuperar la contraseña
 * Crear propiedades
 * Listar propiedades
 * Consultar detalle de una propiedad
@@ -120,8 +128,17 @@ El backend expone APIs REST para:
 * Ejecutar predicciones sobre propiedades
 * Guardar historial de predicciones
 * Consultar estadísticas para dashboard
+* Guardar y consultar propiedades favoritas por usuario
+
+La base de datos usa PostgreSQL, levantado con Docker Compose.
 
 ## Nota importante
 
-El modelo actual fue entrenado con el dataset Ames Housing. Por lo tanto, las predicciones representan estimaciones basadas en ese conjunto de datos y no deben interpretarse como valuaciones oficiales del mercado inmobiliario mexicano.
+El modelo actual fue entrenado utilizando el dataset **Ames Housing**, proporcionado a través de la competencia **House Prices: Advanced Regression Techniques** de Kaggle.
 
+El conjunto de datos contiene información sobre propiedades residenciales de **Ames, Iowa**, y utiliza diferentes características de las viviendas para predecir su precio de venta (`SalePrice`).
+
+Por esta razón, las predicciones generadas por SmartHouse AVM representan **estimaciones basadas en los datos utilizados durante el entrenamiento** y no deben interpretarse como valuaciones oficiales del mercado inmobiliario mexicano.
+
+**Fuente del dataset:**
+[Kaggle — House Prices: Advanced Regression Techniques](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques?utm_source=chatgpt.com)
